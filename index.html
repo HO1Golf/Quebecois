@@ -678,16 +678,32 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <div class="ds"><div class="ds-v" id="ds-les">0</div><div class="ds-l">Lessons passed</div></div>
     <div class="ds"><div class="ds-v" id="ds-cards">0</div><div class="ds-l">Cards mastered</div></div>
   </div>
-  <!-- Save/Load Progress -->
-  <div style="background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-    <div style="flex:1;min-width:200px;">
-      <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;">💾 Your progress auto-saves in this browser</div>
-      <div style="font-size:11px;color:var(--ink4);line-height:1.5;">Open this same HTML file in the same browser and your progress is there. Use Export to back up or transfer to another device.</div>
+  <!-- Cloud Sync -->
+  <div style="background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;">☁️ Cloud Sync</div>
+        <div style="font-size:11px;color:var(--ink4);line-height:1.5;" id="gh-sync-status">Not connected</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="ghShowSetup()" style="font-size:11px;">⚙ Setup</button>
+        <button class="btn btn-ghost" onclick="ghForceSync()" style="font-size:11px;">🔄 Sync Now</button>
+        <button class="btn btn-ghost" onclick="exportProgress()" style="font-size:11px;">⬇ Export</button>
+        <label class="btn btn-ghost" style="font-size:11px;cursor:pointer;">⬆ Import<input type="file" accept=".json" onchange="importProgress(event)" style="display:none;"></label>
+        <button class="btn btn-ghost" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){localStorage.removeItem('qbc4');localStorage.removeItem('qbc_welcomed');localStorage.removeItem('qbc_gh_token');localStorage.removeItem('qbc_gh_lastsync');location.reload();}" style="font-size:11px;color:var(--r);">Reset</button>
+      </div>
     </div>
-    <div style="display:flex;gap:6px;">
-      <button class="btn btn-ghost" onclick="exportProgress()" style="font-size:11px;">⬇ Export backup</button>
-      <label class="btn btn-ghost" style="font-size:11px;cursor:pointer;">⬆ Import backup<input type="file" accept=".json" onchange="importProgress(event)" style="display:none;"></label>
-      <button class="btn btn-ghost" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){localStorage.removeItem('qbc4');localStorage.removeItem('qbc_welcomed');location.reload();}" style="font-size:11px;color:var(--r);">Reset</button>
+    <div id="gh-token-input" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">
+      <div style="font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px;">GitHub Personal Access Token</div>
+      <div style="font-size:11px;color:var(--ink4);line-height:1.6;margin-bottom:8px;">
+        1. Go to <b>GitHub.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens</b><br>
+        2. Create a token scoped to <b>HO1Golf/Quebecois</b> with <b>Contents: Read & Write</b><br>
+        3. Paste it below
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="gh-token-val" placeholder="github_pat_..." style="flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:var(--rsm);font-size:12px;font-family:monospace;">
+        <button class="btn btn-ghost" onclick="ghSetToken(document.getElementById('gh-token-val').value)" style="font-size:12px;font-weight:600;color:var(--b);">Save Token</button>
+      </div>
     </div>
   </div>
   
@@ -15505,6 +15521,201 @@ function startVerbPractice(v){
 
 
 function vpCheckTenseBtn(btn){vpCheckTense(btn,btn.dataset.t,btn.dataset.c);}
+
+/* ═══ GITHUB CLOUD SYNC ═══ */
+var ghSync={
+  token:localStorage.getItem('qbc_gh_token')||'',
+  owner:'HO1Golf',
+  repo:'Quebecois',
+  file:'progress.json',
+  branch:'main',
+  syncing:false,
+  lastSync:localStorage.getItem('qbc_gh_lastsync')||'Never',
+  dirty:false,
+  debounceTimer:null
+};
+
+function ghSetToken(t){
+  ghSync.token=t.trim();
+  if(ghSync.token){
+    localStorage.setItem('qbc_gh_token',ghSync.token);
+    toast('🔑','Token saved! Syncing...');
+    ghPush();
+  } else {
+    localStorage.removeItem('qbc_gh_token');
+    toast('🔑','Token removed.');
+  }
+  ghUpdateUI();
+}
+
+function ghGetHeaders(){
+  return {'Authorization':'token '+ghSync.token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+}
+
+function ghBuildPayload(){
+  return {
+    version:'qbc-sync-v1',
+    synced:new Date().toISOString(),
+    xp:xp,totalH:totalH,lessDone:lessDone,
+    done:Array.from(doneLes),
+    unlocked:Array.from(unlocked),
+    savedWords:savedWords,
+    customCards:customCards,
+    streak:JSON.parse(localStorage.getItem('qbc_streak')||'{}'),
+    cardProgress:cards.filter(function(c){return c.reps>0;}).map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state};})
+  };
+}
+
+function ghApplyPayload(data){
+  // Merge: take the higher XP, combine completed lessons, etc.
+  if((data.xp||0)>xp) xp=data.xp;
+  if((data.lessDone||0)>lessDone) lessDone=data.lessDone;
+  (data.done||[]).forEach(function(k){doneLes.add(k);});
+  lessDone=doneLes.size; // recalculate from actual set
+  (data.unlocked||[]).forEach(function(k){unlocked.add(k);});
+  // Merge saved words (dedupe by french word)
+  if(data.savedWords){
+    data.savedWords.forEach(function(w){
+      if(!savedWords.find(function(s){return s.fr===w.fr;})) savedWords.push(w);
+    });
+  }
+  // Merge custom cards
+  if(data.customCards){
+    data.customCards.forEach(function(w){
+      if(!customCards.find(function(s){return s.id===w.id;})) customCards.push(w);
+    });
+  }
+  // For card progress, take whichever has more reps (more practice)
+  if(data.cardProgress){
+    data.cardProgress.forEach(function(sc){
+      var c=cards.find(function(x){return x.id===sc.id;});
+      if(c && sc.reps>(c.reps||0)){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;}
+    });
+  }
+  // Merge streak
+  if(data.streak){
+    try{
+      var local=JSON.parse(localStorage.getItem('qbc_streak')||'{}');
+      var remote=data.streak;
+      // Take higher streak count and merge activity days
+      if((remote.current||0)>(local.current||0)) local.current=remote.current;
+      if((remote.best||0)>(local.best||0)) local.best=remote.best;
+      if(remote.days && local.days){
+        Object.keys(remote.days).forEach(function(d){
+          if(!local.days[d] || remote.days[d]>local.days[d]) local.days[d]=remote.days[d];
+        });
+      } else if(remote.days){
+        local.days=remote.days;
+      }
+      localStorage.setItem('qbc_streak',JSON.stringify(local));
+    }catch(e){}
+  }
+  sv();
+  try{localStorage.setItem('qbc_saved',JSON.stringify(savedWords));localStorage.setItem('qbc_custom',JSON.stringify(customCards));}catch(e){}
+  sEl('xp-n',xp);try{sEl('ds-xp',xp);}catch(e){}
+  try{sEl('ds-les',lessDone);}catch(e){}
+  buildNav();buildDash();buildContinueHero();
+}
+
+async function ghPull(){
+  if(!ghSync.token){return false;}
+  ghSync.syncing=true;ghUpdateUI();
+  try{
+    var r=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file+'?ref='+ghSync.branch,{headers:ghGetHeaders()});
+    if(r.status===404){ghSync.syncing=false;ghUpdateUI();return true;} // no remote file yet
+    if(!r.ok){throw new Error('HTTP '+r.status);}
+    var j=await r.json();
+    var content=atob(j.content.replace(/\n/g,''));
+    var data=JSON.parse(content);
+    ghApplyPayload(data);
+    ghSync.lastSync=new Date().toLocaleString();
+    localStorage.setItem('qbc_gh_lastsync',ghSync.lastSync);
+    ghSync.syncing=false;ghUpdateUI();
+    return true;
+  }catch(e){
+    console.error('GitHub pull error:',e);
+    ghSync.syncing=false;ghUpdateUI();
+    return false;
+  }
+}
+
+async function ghPush(){
+  if(!ghSync.token){return false;}
+  ghSync.syncing=true;ghSync.dirty=false;ghUpdateUI();
+  try{
+    // Get current file SHA (needed for updates)
+    var sha=null;
+    var r=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file+'?ref='+ghSync.branch,{headers:ghGetHeaders()});
+    if(r.ok){var j=await r.json();sha=j.sha;}
+    // Push new content
+    var payload=ghBuildPayload();
+    var body={
+      message:'Sync progress — '+new Date().toISOString().slice(0,16),
+      content:btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))),
+      branch:ghSync.branch
+    };
+    if(sha) body.sha=sha;
+    var r2=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file,{method:'PUT',headers:ghGetHeaders(),body:JSON.stringify(body)});
+    if(!r2.ok){var err=await r2.json();throw new Error(err.message||'HTTP '+r2.status);}
+    ghSync.lastSync=new Date().toLocaleString();
+    localStorage.setItem('qbc_gh_lastsync',ghSync.lastSync);
+    ghSync.syncing=false;ghUpdateUI();
+    toast('☁️','Progress synced to cloud!');
+    return true;
+  }catch(e){
+    console.error('GitHub push error:',e);
+    ghSync.syncing=false;ghUpdateUI();
+    toast('⚠️','Sync failed: '+e.message);
+    return false;
+  }
+}
+
+function ghDebouncedPush(){
+  if(!ghSync.token) return;
+  ghSync.dirty=true;
+  clearTimeout(ghSync.debounceTimer);
+  ghSync.debounceTimer=setTimeout(function(){ghPush();},10000); // push 10s after last save
+}
+
+// Patch sv() to also trigger cloud sync
+var _origSv=sv;
+sv=function(){
+  _origSv();
+  ghDebouncedPush();
+};
+
+function ghUpdateUI(){
+  var el=document.getElementById('gh-sync-status');
+  if(!el) return;
+  if(!ghSync.token){
+    el.innerHTML='<span style="color:var(--r);">Not connected</span>';
+  } else if(ghSync.syncing){
+    el.innerHTML='<span style="color:var(--o);">Syncing...</span>';
+  } else {
+    el.innerHTML='<span style="color:var(--g);">Connected</span> · Last sync: '+ghSync.lastSync;
+  }
+}
+
+function ghShowSetup(){
+  var d=document.getElementById('gh-token-input');
+  if(d) d.style.display=d.style.display==='none'?'block':'none';
+}
+
+function ghForceSync(){
+  if(!ghSync.token){toast('⚠️','Set up your GitHub token first.');return;}
+  toast('☁️','Pulling from cloud...');
+  ghPull().then(function(ok){
+    if(ok){
+      toast('☁️','Pushing to cloud...');
+      ghPush();
+    }
+  });
+}
+
+// Auto-pull on load if token exists
+if(ghSync.token){
+  setTimeout(function(){ghPull();},1500);
+}
 </script>
 </body>
 </html>
