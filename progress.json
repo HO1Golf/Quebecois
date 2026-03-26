@@ -1,12 +1,15 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-26T23:42:22.845Z",
-  "xp": 85,
+  "synced": "2026-03-26T23:43:57.458Z",
+  "xp": 165,
   "totalH": 0,
-  "lessDone": 0,
-  "done": [],
+  "lessDone": 1,
+  "done": [
+    "0-0"
+  ],
   "unlocked": [
-    "default"
+    "default",
+    "0-0"
   ],
   "savedWords": [],
   "customCards": [],
