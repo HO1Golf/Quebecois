@@ -153,6 +153,19 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 /* Save word button */
 .save-w{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--b);background:var(--bl);border:1px solid var(--bm);padding:2px 8px;border-radius:100px;cursor:pointer;margin-left:6px;transition:all .12s;font-family:inherit;vertical-align:middle;}
 .save-w:hover{background:var(--b);color:white;}.save-w.saved{background:var(--gl);color:var(--g);border-color:#A7F3D0;pointer-events:none;}
+/* Interactive exercise inputs */
+.ex-input{display:inline-block;border:2px solid var(--bm);border-radius:8px;padding:6px 12px;font-size:14px;font-family:inherit;width:220px;max-width:60vw;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;}
+.ex-input:focus{border-color:var(--b);}
+.ex-input.correct{border-color:var(--g);background:var(--gl);color:#065F46;}
+.ex-input.wrong{border-color:var(--r);background:#FEF2F2;color:#991B1B;}
+.ex-check{display:inline-block;font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;margin-left:6px;background:var(--b);color:white;vertical-align:middle;}
+.ex-check:hover{opacity:.85;}
+.ex-check:disabled{opacity:.4;cursor:default;}
+.ex-fb{display:inline-block;font-size:12px;font-weight:600;margin-left:8px;vertical-align:middle;}
+.ex-fb.ok{color:var(--g);}.ex-fb.no{color:var(--r);}
+.ex-answer{display:block;font-size:11px;color:var(--ink4);margin-top:4px;font-style:italic;}
+/* Next button disabled state */
+.btn-next-locked{opacity:.35;pointer-events:none;cursor:default;}
 
 /* Checkpoints */
 .checkpoint{background:linear-gradient(135deg,var(--bl) 0%,var(--pl) 100%);border:2px solid var(--bm);border-radius:var(--radius);padding:24px;margin:24px 0;text-align:center;}
@@ -178,7 +191,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 /* ═══ QUIZ ═══ */
 .quiz-view{padding:32px;max-width:620px;margin:0 auto;}
 .q-prog{display:flex;gap:4px;margin-bottom:20px;}
-.q-dot{flex:1;height:4px;background:var(--line);border-radius:100px;transition:background .25s;}.q-dot.dn{background:var(--g);}.q-dot.cu{background:var(--b);}
+.q-dot{flex:1;height:4px;background:var(--line);border-radius:100px;transition:background .25s;}.q-dot.dn{background:var(--g);}.q-dot.dw{background:var(--r);}.q-dot.cu{background:var(--b);}
 .q-card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:28px;animation:fadeUp .3s ease;}
 .q-type{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px;}
 .q-text{font-family:'Fraunces',serif;font-size:20px;color:var(--ink);margin-bottom:6px;line-height:1.3;}
@@ -672,12 +685,6 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <h1>Your path to <em>Montreal French</em></h1>
     <p>125 units across 5 CEFR levels. 10,000+ flashcards. Built on the Échelle québécoise framework used by Quebec immigration.</p>
   </div>
-  <div class="dash-stats">
-    
-    
-    <div class="ds"><div class="ds-v" id="ds-les">0</div><div class="ds-l">Lessons passed</div></div>
-    <div class="ds"><div class="ds-v" id="ds-cards">0</div><div class="ds-l">Cards mastered</div></div>
-  </div>
   <!-- Cloud Sync -->
   <div style="background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;">
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
@@ -688,8 +695,6 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-ghost" onclick="ghShowSetup()" style="font-size:11px;">⚙ Setup</button>
         <button class="btn btn-ghost" onclick="ghForceSync()" style="font-size:11px;">🔄 Sync Now</button>
-        <button class="btn btn-ghost" onclick="exportProgress()" style="font-size:11px;">⬇ Export</button>
-        <label class="btn btn-ghost" style="font-size:11px;cursor:pointer;">⬆ Import<input type="file" accept=".json" onchange="importProgress(event)" style="display:none;"></label>
         <button class="btn btn-ghost" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){localStorage.removeItem('qbc4');localStorage.removeItem('qbc_welcomed');localStorage.removeItem('qbc_gh_token');localStorage.removeItem('qbc_gh_lastsync');location.reload();}" style="font-size:11px;color:var(--r);">Reset</button>
       </div>
     </div>
@@ -848,6 +853,7 @@ var currentView='dashboard';
 function toggleMobNav(){var nav=document.getElementById('sidenav');var ov=document.getElementById('mob-overlay');nav.classList.toggle('open');ov.classList.toggle('show');}
 function closeMobNav(){document.getElementById('sidenav').classList.remove('open');document.getElementById('mob-overlay').classList.remove('show');}
 function toast(ico,msg){var t=document.getElementById('toast');document.getElementById('toast-text').textContent=msg;t.querySelector('.toast-ico').textContent=ico;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+var _skipPush=false;
 function goView(v){
   currentView=v;closeMobNav();
   document.querySelectorAll('.page-view').forEach(function(el){el.classList.remove('active');});
@@ -861,7 +867,17 @@ function goView(v){
   if(v==='verbs')buildVerbCategories();
   if(v==='ref')buildRef();
   if(v==='dashboard'){buildDash();buildContinueHero();buildStreakBar();}
+  // Browser history support
+  if(!_skipPush){try{history.pushState({view:v,unit:cU,idx:cI,key:cK},'',location.pathname);}catch(e){}}
+  _skipPush=false;
 }
+window.addEventListener('popstate',function(e){
+  if(e.state&&e.state.view){
+    _skipPush=true;
+    if(e.state.view==='lesson'&&e.state.key){oL(e.state.unit,e.state.idx);}
+    else{goView(e.state.view);}
+  } else {_skipPush=true;goView('dashboard');}
+});
 function setProg(p,lbl){
   document.getElementById('sb-prog-wrap').style.display='';
   document.getElementById('sb-fill').style.width=p+'%';
@@ -879,7 +895,7 @@ var customCards=[];try{customCards=JSON.parse(localStorage.getItem('qbc_custom')
 
 function aXP(n){xp+=n;}
 function aHrs(n){}
-function markL(k){if(!doneLes.has(k)){doneLes.add(k);lessDone++;_ulCache=null;try{sEl('ds-les',lessDone);}catch(e){}buildNav();buildDash();buildContinueHero();recordActivity();toast('🎉','Lesson complete! +XP earned.');}}
+function markL(k){if(!doneLes.has(k)){doneLes.add(k);lessDone++;_ulCache=null;try{sEl('ds-les',lessDone);}catch(e){}buildNav();buildDash();buildContinueHero();recordActivity();toast('','Lesson complete!');}}
 function sv(){try{localStorage.setItem('qbc4',JSON.stringify({xp:xp,totalH:totalH,lessDone:lessDone,done:Array.from(doneLes),unlocked:Array.from(unlocked),cards:cards.map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state};}),savedWords:savedWords,customCards:customCards}))}catch(e){}}
 function ld(){try{var s=JSON.parse(localStorage.getItem('qbc4'));if(!s)return;xp=s.xp||0;totalH=s.totalH||0;lessDone=s.lessDone||0;(s.done||[]).forEach(function(k){doneLes.add(k);});(s.unlocked||[]).forEach(function(k){unlocked.add(k);});sEl('xp-n',xp);sEl('ds-xp',xp);try{sEl('ds-les',lessDone);}catch(e){}if(s.cards)s.cards.forEach(function(sc){var c=cards.find(function(x){return x.id===sc.id;});if(c){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;}});if(s.savedWords)savedWords=s.savedWords;if(s.customCards)customCards=s.customCards;}catch(e){}}
 
@@ -14566,13 +14582,96 @@ function oL(u,i){
     for(var c=0;c<cpN;c++)out+='</div>';
     html=out;
   }
-  var utag=getUnitTag(u);document.getElementById('lcont').innerHTML='<div class="breadcrumb"><a onclick="goView(\'dashboard\')">Dashboard</a><span class="bc-sep">/</span><span>'+utag+'</span></div><div class="les-tag">'+utag+'</div><div class="les-h">'+d.title+(d.em?' <em>'+d.em+'</em>':'')+'</div><p class="les-intro">'+d.intro+'</p>'+html+'<div class="les-nav">'+prev+'<button class="btn btn-primary" onclick="stQ(\''+k+'\')">Take the quiz →</button>'+nxt+'</div>';
+  var utag=getUnitTag(u);document.getElementById('lcont').innerHTML='<div class="breadcrumb"><a onclick="goView(\'dashboard\')">Dashboard</a><span class="bc-sep">/</span><span>'+utag+'</span></div><div class="les-tag">'+utag+'</div><div class="les-h">'+d.title+(d.em?' <em>'+d.em+'</em>':'')+'</div><p class="les-intro">'+d.intro+'</p>'+html+'<div class="les-nav">'+prev+'<button class="btn btn-primary btn-next-locked" id="lesNextBtn" onclick="stQ(\''+k+'\')">Next →</button>'+nxt+'</div>';
   goView('lesson');setProg(((i+1)/tot)*100,d.tag);aHrs(d.hrs);sv();buildNav();recordActivity();
-  // Add save buttons to vocab
+  // Auto-save all vocab words to flashcards when lesson is opened
+  var autoSaved=0;
   document.querySelectorAll('#lcont .vfr').forEach(function(el){
     var w=el.textContent.trim();var ve=el.parentElement.querySelector('.ven');var en=ve?ve.textContent.trim():'';
-    if(w&&en){var b=document.createElement('button');b.className='save-w'+(savedWords.find(function(x){return x.fr===w;})?'saved':'');b.textContent=savedWords.find(function(x){return x.fr===w;})?'✓':'+ Save';b.onclick=function(e){e.stopPropagation();saveWord(w,en);b.classList.add('saved');b.textContent='✓';};el.appendChild(b);}
+    if(w&&en){
+      if(!savedWords.find(function(x){return x.fr===w;})){saveWord(w,en,true);autoSaved++;}
+      var b=document.createElement('span');b.className='save-w saved';b.textContent='✓ Saved';el.appendChild(b);
+    }
   });
+  if(autoSaved>0){toast('',autoSaved+' word'+(autoSaved>1?'s':'')+' added to your flashcards');}
+  // Make exercise blanks interactive
+  makeExercisesInteractive();
+  // Unlock Next button on scroll to bottom
+  setupScrollUnlock();
+}
+function makeExercisesInteractive(){
+  var exId=0;
+  document.querySelectorAll('#lcont .bt').forEach(function(bt){
+    var html=bt.innerHTML;
+    // Find answer spans (gray text with answers)
+    var answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
+    if(!answerSpans.length)return;
+    // Check if there are blanks
+    if(html.indexOf('____')<0)return;
+    // Parse answers from the answer span text
+    var answerText='';answerSpans.forEach(function(s){answerText+=s.textContent+' ';});
+    // Extract individual answers - handle formats like "(answer)" or "1. answer 2. answer"
+    var answers=[];
+    var parenMatches=answerText.match(/\(([^)]+)\)/g);
+    if(parenMatches){parenMatches.forEach(function(m){answers.push(m.replace(/[()]/g,'').trim());});}
+    else{
+      var numMatches=answerText.match(/\d+\.\s*([^0-9]+)/g);
+      if(numMatches){numMatches.forEach(function(m){answers.push(m.replace(/^\d+\.\s*/,'').trim());});}
+    }
+    if(!answers.length)return;
+    // Hide the answer spans
+    answerSpans.forEach(function(s){s.style.display='none';});
+    // Replace blanks with inputs
+    var ai=0;
+    bt.innerHTML=bt.innerHTML.replace(/_{4,}/g,function(){
+      var ans=answers[ai]||'';
+      var id='exin_'+(exId++);
+      ai++;
+      return '<input type="text" class="ex-input" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'" placeholder="Type your answer..." autocomplete="off" autocapitalize="off">'
+        +'<button class="ex-check" onclick="checkExAnswer(\''+id+'\')">Check</button>'
+        +'<span class="ex-fb" id="'+id+'_fb"></span>';
+    });
+  });
+}
+function normalizeAnswer(s){return s.toLowerCase().replace(/[!?.,;:'"()\u2014\u2013\u2019\u2018\u201C\u201D]/g,'').replace(/\s+/g,' ').trim();}
+function checkExAnswer(id){
+  var inp=document.getElementById(id);
+  var fb=document.getElementById(id+'_fb');
+  var answer=inp.getAttribute('data-answer');
+  var userVal=inp.value.trim();
+  if(!userVal){fb.className='ex-fb no';fb.textContent='Type something first';return;}
+  // Check if correct - accept any of the slash-separated alternatives
+  var acceptables=answer.split('/').map(function(a){return normalizeAnswer(a);});
+  // Also accept the whole thing as one answer
+  acceptables.push(normalizeAnswer(answer));
+  var userNorm=normalizeAnswer(userVal);
+  var correct=acceptables.some(function(a){return a===userNorm;});
+  // Also check with some leniency - ignore accents
+  if(!correct){
+    var userNoAccent=userNorm.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    correct=acceptables.some(function(a){return a.normalize('NFD').replace(/[\u0300-\u036f]/g,'')===userNoAccent;});
+    if(correct){fb.className='ex-fb ok';fb.textContent='✓ Correct! (Watch the accents: '+answer+')';inp.className='ex-input correct';inp.disabled=true;aXP(3);return;}
+  }
+  if(correct){
+    fb.className='ex-fb ok';fb.textContent='✓ Correct!';inp.className='ex-input correct';inp.disabled=true;aXP(3);
+  } else {
+    fb.className='ex-fb no';fb.textContent='✗ Try again';inp.className='ex-input wrong';
+    setTimeout(function(){inp.className='ex-input';fb.textContent='';},1500);
+  }
+}
+var _scrollUnlockHandler=null;
+function setupScrollUnlock(){
+  var btn=document.getElementById('lesNextBtn');if(!btn)return;
+  var container=document.getElementById('lcont');if(!container)return;
+  // Check if already at bottom (short lessons)
+  function checkBottom(){
+    var rect=container.getBoundingClientRect();
+    var navEl=container.querySelector('.les-nav');
+    if(navEl){var navRect=navEl.getBoundingClientRect();if(navRect.top<window.innerHeight+100){btn.classList.remove('btn-next-locked');if(_scrollUnlockHandler){window.removeEventListener('scroll',_scrollUnlockHandler);_scrollUnlockHandler=null;}}}
+  }
+  checkBottom();
+  _scrollUnlockHandler=function(){checkBottom();};
+  window.addEventListener('scroll',_scrollUnlockHandler);
 }
 function checkCP(cpId,chosen,correct,secId){
   var opts=document.querySelectorAll('#'+cpId+'o .cp-opt');
@@ -14588,7 +14687,7 @@ function stQ(k){
   var d=LD[k];if(!d||!d.quiz)return;
   qQs=d.quiz;qC=0;qSc=0;qAns=false;qWrong=[];
   document.getElementById('qtag').textContent=getUnitTag(parseInt(k.split('-')[0]))+' · Quiz';
-  document.getElementById('qintro').textContent=qQs.length+' questions · 10 XP each · need 80% to pass';
+  document.getElementById('qintro').textContent=qQs.length+' questions · need 80% to pass';
   document.getElementById('qcardwrap').style.display='block';
   document.getElementById('qdone').className='q-done';
   var dots='';for(var i=0;i<qQs.length;i++)dots+='<div class="q-dot" id="qd'+i+'"></div>';
@@ -14597,7 +14696,8 @@ function stQ(k){
 }
 function rnQ(){
   var q=qQs[qC];qAns=false;
-  for(var i=0;i<qC;i++)document.getElementById('qd'+i).className='q-dot dn';
+  // Don't override green/red dot colors - only set current dot
+  for(var i=0;i<qC;i++){var dot=document.getElementById('qd'+i);if(!dot.classList.contains('dn')&&!dot.classList.contains('dw'))dot.className='q-dot dn';}
   document.getElementById('qd'+qC).className='q-dot cu';
   document.getElementById('qtype').textContent=q.t;
   document.getElementById('qtext').textContent=q.q;
@@ -14612,6 +14712,7 @@ function selQ(i){
   if(qAns)return;qAns=true;
   var q=qQs[qC];var btns=document.querySelectorAll('.q-opt');var ok=i===q.a;
   btns[i].classList.add(ok?'ok':'no');if(!ok){btns[q.a].classList.add('sa');qWrong.push({q:q.q,chosen:q.o[i],correct:q.o[q.a]});}
+  document.getElementById('qd'+qC).className='q-dot '+(ok?'dn':'dw');
   btns.forEach(function(b){b.disabled=true;});
   if(ok){qSc++;aXP(10);}
   var fb=document.getElementById('qfb');
@@ -14626,9 +14727,10 @@ function showQD(){
   var comp=document.getElementById('qdone');comp.className='q-done show';
   var pct=Math.round(qSc/qQs.length*100);var passed=pct>=80;
   document.getElementById('sb-fill').style.width='100%';document.getElementById('sb-pct').textContent='100%';
-  document.getElementById('qdxp').innerHTML='<div class="qd-breakdown"><div class="qd-stat"><div class="qd-stat-v" style="color:var(--g);">'+qSc+'</div><div class="qd-stat-l">Correct</div></div><div class="qd-stat"><div class="qd-stat-v" style="color:var(--r);">'+(qQs.length-qSc)+'</div><div class="qd-stat-l">Wrong</div></div><div class="qd-stat"><div class="qd-stat-v" style="color:var(--gold);">'+pct+'%</div><div class="qd-stat-l">Score</div></div><div class="qd-stat"><div class="qd-stat-v" style="color:var(--b);">⚡ '+qSc*10+'</div><div class="qd-stat-l">XP earned</div></div></div>';
+  document.getElementById('qdxp').innerHTML='<div class="qd-breakdown"><div class="qd-stat"><div class="qd-stat-v" style="color:var(--g);">'+qSc+'</div><div class="qd-stat-l">Correct</div></div><div class="qd-stat"><div class="qd-stat-v" style="color:var(--r);">'+(qQs.length-qSc)+'</div><div class="qd-stat-l">Wrong</div></div><div class="qd-stat"><div class="qd-stat-v" style="color:var(--gold);">'+pct+'%</div><div class="qd-stat-l">Score</div></div></div>';
   if(passed){markL(cK);unlockCards(cK);}
-  document.getElementById('qdem').textContent=passed?'🎉':pct>=60?'😬':'💪';
+  document.getElementById('qdem').textContent=passed?'':pct>=60?'':'';
+  document.getElementById('qdem').style.display='none';
   document.getElementById('qdh').textContent=passed?'Excellent! Bien joué!':pct>=60?'Almost — 80% needed to pass':'Keep studying — 80% needed';
   var subText=qSc+'/'+qQs.length+' correct ('+pct+'%). '+(passed?'Lesson complete! Flashcards unlocked.':'You need '+Math.ceil(qQs.length*0.8)+'/'+qQs.length+' to pass.');
   var reviewHTML='';
@@ -14647,7 +14749,7 @@ function showQD(){
 }
 
 /* ═══ SRS FLASHCARD ENGINE ═══ */
-function unlockCards(k){unlocked.add(k);rfFlashStats();try{sEl('ds-cards',getLearned());}catch(e){}sv();toast('🃏','New flashcards unlocked!');}
+function unlockCards(k){unlocked.add(k);rfFlashStats();try{sEl('ds-cards',getLearned());}catch(e){}sv();toast('','New flashcards unlocked');}
 function rateCard(c,r){
   // 7 levels: 0=30min,1=1hr,2=3hr,3=1day,4=3days,5=1week,6=3weeks
   var intervals=[0,0,0,1,3,7,21]; // days (0 = same day review)
@@ -14728,7 +14830,7 @@ function rnFC(){
   var h='<div style="display:flex;flex-direction:column;flex:1;min-height:0;">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-shrink:0;"><span style="font-size:10px;font-weight:600;color:var(--ink3);">'+(sIdx+1)+' / '+sCards.length+'</span><span style="font-size:9px;color:var(--ink5);">'+c.dk+' · '+c.lv+'</span></div>';
   h+='<div style="height:2px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:6px;flex-shrink:0;"><div style="height:100%;background:linear-gradient(90deg,var(--b),var(--p));border-radius:100px;width:'+pct+'%;transition:width .3s;"></div></div>';
-  h+='<div class="fc-wrap" onclick="flipFC()" id="fcwrap"><div class="fc" id="fcard"><div class="fc-face"><div class="fc-cat">'+c.dk+'</div><div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';">'+c.lv+'</div><div class="fc-main">'+c.f+'</div><div class="fc-hint">tap to flip</div></div><div class="fc-face fc-bk"><div class="fc-cat">answer</div><div class="fc-main">'+c.b+'</div>'+(function(){var eng='';if(c.dk==='conj'){var parts=c.f.split(' — ');if(parts[0]){var vb=parts[0].trim().toLowerCase().replace(/^(je |tu |il |elle |on |nous |vous |ils |elles )/,'');if(CONJ_DB[vb])eng=CONJ_DB[vb].en;else{for(var k in CONJ_DB){if(vb.indexOf(k)>=0||k.indexOf(vb)>=0){eng=CONJ_DB[k].en;break;}}}if(!eng){var stem=vb.replace(/^(j\'|j\')?(ai |suis |avais |étais |aurai |serai )?/,'');for(var k in CONJ_DB){if(stem.indexOf(k.slice(0,-2))>=0||k.indexOf(stem.slice(0,-1))>=0){eng=CONJ_DB[k].en;break;}}}}}var exLine=c.ex||'';var engLine=eng?'<div style="font-size:13px;color:var(--b);margin-top:10px;font-weight:600;">🇬🇧 '+eng+'</div>':'';if(!eng&&c.dk!=='conj'&&c.b){var hasEng=/[a-zA-Z]{3,}/.test(c.b)&&(/the |to |a |an |is |are |was |in |of |for |not |with /.test(c.b.toLowerCase())||/ing$|tion$|ment$|ness$|ous$|ive$|able$/.test(c.b));if(!hasEng&&c.f&&c.b!==c.f)engLine='<div style="font-size:11px;color:var(--ink3);margin-top:8px;">🇫🇷 '+c.f+'</div>';}return engLine+(exLine?'<div class="fc-ex">'+exLine+'</div>':'');}())+'</div></div></div>';
+  h+='<div class="fc-wrap" onclick="flipFC()" id="fcwrap"><div class="fc" id="fcard"><div class="fc-face"><div class="fc-cat">'+c.dk+'</div><div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';">'+c.lv+'</div><div class="fc-main">'+c.f+'</div><div class="fc-hint">tap to flip</div></div><div class="fc-face fc-bk"><div class="fc-cat">answer</div><div class="fc-main">'+c.b+'</div>'+(function(){var eng='';if(c.dk==='conj'){var parts=c.f.split(' — ');if(parts[0]){var vb=parts[0].trim().toLowerCase().replace(/^se\s+/,'');if(CONJ_DB[vb])eng=CONJ_DB[vb].en;if(!eng){for(var k in CONJ_DB){if(vb===k||vb.indexOf(k)===0||k.indexOf(vb)===0){eng=CONJ_DB[k].en;break;}}}if(!eng){var vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase()===vb;});if(vc)eng=vc.b;if(!vc){vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase().indexOf(vb)>=0;});if(vc)eng=vc.b;}}if(!eng){var exText=c.ex||'';var exMatch=exText.match(/^(to \w[\w\s/]+?)[\.,]/);if(exMatch)eng=exMatch[1];}}}var exLine=c.ex||'';var engLine=eng?'<div style="font-size:14px;color:var(--b);margin-top:12px;font-weight:600;">'+eng+'</div>':'';if(!eng&&c.dk!=='conj'){engLine='';if(c.b&&!/^[a-zA-Z]/.test(c.f||'')&&c.f!==c.b){engLine='';}}return engLine+(exLine?'<div class="fc-ex">'+exLine+'</div>':'');}())+'</div></div></div>';
   h+='<div class="f-rates" id="frates" style="display:none;">';
   h+='<button class="f-rate r-0" onclick="rateS(0)"><div class="f-rl">30m</div><div class="f-ri">Again</div></button>';
   h+='<button class="f-rate r-1" onclick="rateS(1)"><div class="f-rl">1h</div><div class="f-ri">Hard</div></button>';
@@ -15072,7 +15174,7 @@ function addCustomCard(){
   cards.push(card);customCards.push({id:id,dk:dk,f:front,b:back,ex:ex});
   try{localStorage.setItem('qbc_custom',JSON.stringify(customCards));}catch(e){}
   document.getElementById('ccf-front').value='';document.getElementById('ccf-back').value='';document.getElementById('ccf-ex').value='';
-  toast('✏️','Custom card added!');var msg=document.getElementById('ccf-msg');msg.style.display='inline';setTimeout(function(){msg.style.display='none';},2000);
+  toast('','Custom card added');var msg=document.getElementById('ccf-msg');msg.style.display='inline';setTimeout(function(){msg.style.display='none';},2000);
   rfCustomList();rfFlashStats();sv();
 }
 function rfCustomList(){
@@ -15081,7 +15183,7 @@ function rfCustomList(){
   el.innerHTML='<div class="browse-grid">'+customCards.map(function(c,i){return'<div class="bc"><div class="bc-fr">'+c.f+'</div><div class="bc-bk">'+c.b+'</div><div class="bc-m"><span class="bct bct-new">'+c.dk+'</span><span class="bct bct-due" style="cursor:pointer;" onclick="delCustom('+i+')">✕ Delete</span></div></div>';}).join('')+'</div>';
 }
 function delCustom(i){var id=customCards[i].id;customCards.splice(i,1);var ci=cards.findIndex(function(c){return c.id===id;});if(ci>=0)cards.splice(ci,1);try{localStorage.setItem('qbc_custom',JSON.stringify(customCards));}catch(e){}rfCustomList();sv();}
-function saveWord(fr,en){if(savedWords.find(function(w){return w.fr===fr;}))return;savedWords.push({fr:fr,en:en});try{localStorage.setItem('qbc_saved',JSON.stringify(savedWords));}catch(e){}sv();toast('💾','Word saved to your bank!');}
+function saveWord(fr,en,silent){if(savedWords.find(function(w){return w.fr===fr;}))return;savedWords.push({fr:fr,en:en});try{localStorage.setItem('qbc_saved',JSON.stringify(savedWords));}catch(e){}sv();if(!silent)toast('','Word saved');}
 
 /* ═══ REFERENCE ═══ */
 function buildRef(){
@@ -15273,14 +15375,14 @@ function rfSavedList(){
 function convertSavedToCard(i){
   var w=savedWords[i];if(!w)return;
   var existing=cards.find(function(c){return c.f===w.fr&&c.dk==='custom';});
-  if(existing){toast('ℹ️','Card already exists for "'+w.fr+'"');return;}
+  if(existing){toast('','Card already exists for "'+w.fr+'"');return;}
   var id='sw_'+Date.now()+'_'+i;
   var card={id:id,dk:'custom',lv:'A1',f:w.fr,b:w.en,ex:'Saved from lesson.',ls:'default',interval:0,ease:2.5,reps:0,due:td(),state:'new'};
   cards.push(card);
   customCards.push({id:id,dk:'custom',f:w.fr,b:w.en,ex:'Saved from lesson.'});
   try{localStorage.setItem('qbc_custom',JSON.stringify(customCards));}catch(e){}
   sv();rfSavedList();rfFlashStats();
-  toast('🃏','Flashcard created for "'+w.fr+'"');
+  toast('','Flashcard created for "'+w.fr+'"');
 }
 function convertAllSaved(){
   var count=0;
@@ -15296,9 +15398,9 @@ function convertAllSaved(){
   if(count>0){
     try{localStorage.setItem('qbc_custom',JSON.stringify(customCards));}catch(e){}
     sv();rfSavedList();rfFlashStats();
-    toast('🃏',count+' flashcards created from saved words!');
+    toast('',count+' flashcards created from saved words');
   } else {
-    toast('ℹ️','All saved words already have flashcards.');
+    toast('','All saved words already have flashcards');
   }
 }
 function removeSaved(i){savedWords.splice(i,1);try{localStorage.setItem('qbc_saved',JSON.stringify(savedWords));}catch(e){}sv();rfSavedList();}
@@ -15321,7 +15423,7 @@ function exportProgress(){
   var a=document.createElement('a');
   a.href=url;a.download='quebecois-progress-'+new Date().toISOString().slice(0,10)+'.json';
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  toast('⬇️','Progress exported! Save the file somewhere safe.');
+  toast('','Progress exported');
 }
 function importProgress(e){
   var file=e.target.files[0];if(!file)return;
@@ -15351,7 +15453,7 @@ function importProgress(e){
       sEl('ds-xp',xp);
       try{sEl('ds-les',lessDone);}catch(e){}try{sEl('ds-cards',getLearned());}catch(e){}
       buildNav();buildDash();rfFlashStats();
-      toast('⬆️','Progress imported! '+data.done.length+' lessons, '+data.xp+' XP restored.');
+      toast('','Progress imported! '+data.done.length+' lessons restored.');
     }catch(err){alert('Error reading backup file: '+err.message);}
   };
   reader.readAsText(file);
@@ -15539,11 +15641,11 @@ function ghSetToken(t){
   ghSync.token=t.trim();
   if(ghSync.token){
     localStorage.setItem('qbc_gh_token',ghSync.token);
-    toast('🔑','Token saved! Syncing...');
+    toast('','Token saved. Syncing...');
     ghPush();
   } else {
     localStorage.removeItem('qbc_gh_token');
-    toast('🔑','Token removed.');
+    toast('','Token removed');
   }
   ghUpdateUI();
 }
