@@ -154,16 +154,19 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .save-w{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--b);background:var(--bl);border:1px solid var(--bm);padding:2px 8px;border-radius:100px;cursor:pointer;margin-left:6px;transition:all .12s;font-family:inherit;vertical-align:middle;}
 .save-w:hover{background:var(--b);color:white;}.save-w.saved{background:var(--gl);color:var(--g);border-color:#A7F3D0;pointer-events:none;}
 /* Interactive exercise inputs */
-.ex-input{display:inline-block;border:2px solid var(--bm);border-radius:8px;padding:6px 12px;font-size:14px;font-family:inherit;width:220px;max-width:60vw;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;}
+.ex-row{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap;}
+.ex-prompt{min-width:180px;flex-shrink:0;}
+.ex-input{border:2px solid var(--bm);border-radius:8px;padding:6px 12px;font-size:14px;font-family:inherit;width:200px;background:var(--bg);color:var(--ink);outline:none;transition:border-color .2s;}
 .ex-input:focus{border-color:var(--b);}
 .ex-input.correct{border-color:var(--g);background:var(--gl);color:#065F46;}
 .ex-input.wrong{border-color:var(--r);background:#FEF2F2;color:#991B1B;}
-.ex-check{display:inline-block;font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;margin-left:6px;background:var(--b);color:white;vertical-align:middle;}
-.ex-check:hover{opacity:.85;}
+.ex-check,.ex-show{font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;color:white;flex-shrink:0;}
+.ex-check{background:var(--b);}.ex-show{background:var(--ink4);}
+.ex-check:hover,.ex-show:hover{opacity:.85;}
 .ex-check:disabled{opacity:.4;cursor:default;}
-.ex-fb{display:inline-block;font-size:12px;font-weight:600;margin-left:8px;vertical-align:middle;}
+.ex-fb{font-size:12px;font-weight:600;flex-shrink:0;}
 .ex-fb.ok{color:var(--g);}.ex-fb.no{color:var(--r);}
-.ex-answer{display:block;font-size:11px;color:var(--ink4);margin-top:4px;font-style:italic;}
+.ex-revealed{display:block;font-size:12px;color:var(--ink3);margin-top:2px;font-style:italic;}
 /* Next button disabled state */
 .btn-next-locked{opacity:.35;pointer-events:none;cursor:default;}
 
@@ -749,18 +752,21 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <div class="les-h" style="font-size:17px;margin:2px 0 0;letter-spacing:-.5px;">Flash<em>cards</em></div>
   </div>
   <div class="fc-modes" style="margin-top:12px;">
-    <button class="fc-mode act" id="fcm-study" onclick="setFCMode('study')">📝 Study</button>
-    <button class="fc-mode" id="fcm-browse" onclick="setFCMode('browse')">🔍 Browse</button>
-    <button class="fc-mode" id="fcm-create" onclick="setFCMode('create')">✏️ Create</button>
-    <button class="fc-mode" id="fcm-saved" onclick="setFCMode('saved')">💾 Saved Words</button>
-    <button class="fc-mode" id="fcm-practice" onclick="setFCMode('practice')">🎯 Practice</button>
+    <button class="fc-mode act" id="fcm-study" onclick="setFCMode('study')">Study</button>
+    <button class="fc-mode" id="fcm-browse" onclick="setFCMode('browse')">Browse</button>
+    <button class="fc-mode" id="fcm-create" onclick="setFCMode('create')">Create</button>
+    <button class="fc-mode" id="fcm-saved" onclick="setFCMode('saved')">Saved Words</button>
+    <button class="fc-mode" id="fcm-practice" onclick="setFCMode('practice')">Practice</button>
+    <button class="fc-mode" id="fcm-mastered" onclick="setFCMode('mastered')">Mastered</button>
+    <button class="fc-mode" id="fcm-log" onclick="setFCMode('log')">Activity</button>
   </div>
   <div id="fc-study-mode">
     <div class="flash-stats" style="margin-top:6px;">
     <div class="fstat"><div class="fstat-v" id="fc-due">0</div><div class="fstat-l">Due today</div></div>
     <div class="fstat"><div class="fstat-v" id="fc-new">0</div><div class="fstat-l">New cards</div></div>
     <div class="fstat"><div class="fstat-v" id="fc-tot">0</div><div class="fstat-l">Mastered</div></div>
-    <div class="fstat"><div class="fstat-v" id="fc-locked">0</div><div class="fstat-l">🔒 Locked</div></div>
+    <div class="fstat"><div class="fstat-v" id="fc-daily">0</div><div class="fstat-l">Today</div></div>
+    <div class="fstat"><div class="fstat-v" id="fc-total-reviewed">0</div><div class="fstat-l">All time</div></div>
   </div>
   <div style="font-size:10px;color:var(--ink4);text-align:center;margin-bottom:6px;" id="fc-unlock-msg"></div>
   <div class="flash-tabs" id="flash-tabs">
@@ -825,6 +831,15 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
       </div>
       <div id="practice-area" style="margin-top:16px;"></div>
     </div>
+  </div>
+  <div id="fc-mastered-mode" style="display:none;">
+    <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:700;color:var(--ink);">Mastered Cards</div>
+    <div style="font-size:11px;color:var(--ink4);text-align:center;margin-bottom:16px;">Cards rated "Known" 4 times are mastered and removed from rotation.</div>
+    <div id="mastered-list"></div>
+  </div>
+  <div id="fc-log-mode" style="display:none;">
+    <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:700;color:var(--ink);">Activity Log</div>
+    <div id="activity-log"></div>
   </div>
 </div></div>
 
@@ -896,8 +911,8 @@ var customCards=[];try{customCards=JSON.parse(localStorage.getItem('qbc_custom')
 function aXP(n){xp+=n;}
 function aHrs(n){}
 function markL(k){if(!doneLes.has(k)){doneLes.add(k);lessDone++;_ulCache=null;try{sEl('ds-les',lessDone);}catch(e){}buildNav();buildDash();buildContinueHero();recordActivity();toast('','Lesson complete!');}}
-function sv(){try{localStorage.setItem('qbc4',JSON.stringify({xp:xp,totalH:totalH,lessDone:lessDone,done:Array.from(doneLes),unlocked:Array.from(unlocked),cards:cards.map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state};}),savedWords:savedWords,customCards:customCards}))}catch(e){}}
-function ld(){try{var s=JSON.parse(localStorage.getItem('qbc4'));if(!s)return;xp=s.xp||0;totalH=s.totalH||0;lessDone=s.lessDone||0;(s.done||[]).forEach(function(k){doneLes.add(k);});(s.unlocked||[]).forEach(function(k){unlocked.add(k);});sEl('xp-n',xp);sEl('ds-xp',xp);try{sEl('ds-les',lessDone);}catch(e){}if(s.cards)s.cards.forEach(function(sc){var c=cards.find(function(x){return x.id===sc.id;});if(c){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;}});if(s.savedWords)savedWords=s.savedWords;if(s.customCards)customCards=s.customCards;}catch(e){}}
+function sv(){try{localStorage.setItem('qbc4',JSON.stringify({xp:xp,totalH:totalH,lessDone:lessDone,done:Array.from(doneLes),unlocked:Array.from(unlocked),cards:cards.map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state,knownCount:c.knownCount||0};}),savedWords:savedWords,customCards:customCards}))}catch(e){}}
+function ld(){try{var s=JSON.parse(localStorage.getItem('qbc4'));if(!s)return;xp=s.xp||0;totalH=s.totalH||0;lessDone=s.lessDone||0;(s.done||[]).forEach(function(k){doneLes.add(k);});(s.unlocked||[]).forEach(function(k){unlocked.add(k);});sEl('xp-n',xp);sEl('ds-xp',xp);try{sEl('ds-les',lessDone);}catch(e){}if(s.cards)s.cards.forEach(function(sc){var c=cards.find(function(x){return x.id===sc.id;});if(c){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;c.knownCount=sc.knownCount||0;}});if(s.savedWords)savedWords=s.savedWords;if(s.customCards)customCards=s.customCards;}catch(e){}}
 
 /* ═══ DATA INJECTION POINT ═══ */
 const LD={
@@ -14603,14 +14618,10 @@ function makeExercisesInteractive(){
   var exId=0;
   document.querySelectorAll('#lcont .bt').forEach(function(bt){
     var html=bt.innerHTML;
-    // Find answer spans (gray text with answers)
     var answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
     if(!answerSpans.length)return;
-    // Check if there are blanks
     if(html.indexOf('____')<0)return;
-    // Parse answers from the answer span text
     var answerText='';answerSpans.forEach(function(s){answerText+=s.textContent+' ';});
-    // Extract individual answers - handle formats like "(answer)" or "1. answer 2. answer"
     var answers=[];
     var parenMatches=answerText.match(/\(([^)]+)\)/g);
     if(parenMatches){parenMatches.forEach(function(m){answers.push(m.replace(/[()]/g,'').trim());});}
@@ -14619,41 +14630,54 @@ function makeExercisesInteractive(){
       if(numMatches){numMatches.forEach(function(m){answers.push(m.replace(/^\d+\.\s*/,'').trim());});}
     }
     if(!answers.length)return;
-    // Hide the answer spans
     answerSpans.forEach(function(s){s.style.display='none';});
-    // Replace blanks with inputs
-    var ai=0;
-    bt.innerHTML=bt.innerHTML.replace(/_{4,}/g,function(){
-      var ans=answers[ai]||'';
+    // Split content at each blank and rebuild as aligned rows
+    var parts=bt.innerHTML.split(/_{4,}/);
+    var newHTML='';
+    for(var i=0;i<parts.length-1;i++){
+      var ans=answers[i]||'';
       var id='exin_'+(exId++);
-      ai++;
-      return '<input type="text" class="ex-input" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'" placeholder="Type your answer..." autocomplete="off" autocapitalize="off">'
+      // Extract the prompt text (the part before the blank on the same line)
+      var prompt=parts[i];
+      // Wrap in an aligned row
+      newHTML+='<div class="ex-row"><div class="ex-prompt">'+prompt+'</div>'
+        +'<input type="text" class="ex-input" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" onkeydown="if(event.key===\'Enter\')checkExAnswer(\''+id+'\')">'
         +'<button class="ex-check" onclick="checkExAnswer(\''+id+'\')">Check</button>'
-        +'<span class="ex-fb" id="'+id+'_fb"></span>';
-    });
+        +'<button class="ex-show" onclick="showExAnswer(\''+id+'\')">Show</button>'
+        +'<span class="ex-fb" id="'+id+'_fb"></span></div>';
+    }
+    if(parts.length>0)newHTML+=parts[parts.length-1];
+    bt.innerHTML=newHTML;
   });
 }
+// Normalize: lowercase, strip punctuation, collapse spaces
 function normalizeAnswer(s){return s.toLowerCase().replace(/[!?.,;:'"()\u2014\u2013\u2019\u2018\u201C\u201D]/g,'').replace(/\s+/g,' ').trim();}
+function showExAnswer(id){
+  var inp=document.getElementById(id);
+  var fb=document.getElementById(id+'_fb');
+  var answer=inp.getAttribute('data-answer');
+  inp.value=answer;inp.className='ex-input';inp.disabled=true;
+  fb.className='ex-fb no';fb.innerHTML='Answer: <b>'+answer+'</b>';
+}
 function checkExAnswer(id){
   var inp=document.getElementById(id);
   var fb=document.getElementById(id+'_fb');
   var answer=inp.getAttribute('data-answer');
   var userVal=inp.value.trim();
   if(!userVal){fb.className='ex-fb no';fb.textContent='Type something first';return;}
-  // Check if correct - accept any of the slash-separated alternatives
+  // Accept slash-separated alternatives
   var acceptables=answer.split('/').map(function(a){return normalizeAnswer(a);});
-  // Also accept the whole thing as one answer
   acceptables.push(normalizeAnswer(answer));
   var userNorm=normalizeAnswer(userVal);
   var correct=acceptables.some(function(a){return a===userNorm;});
-  // Also check with some leniency - ignore accents
+  // If wrong, check if it's just a missing accent (tell them accents matter)
   if(!correct){
     var userNoAccent=userNorm.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    correct=acceptables.some(function(a){return a.normalize('NFD').replace(/[\u0300-\u036f]/g,'')===userNoAccent;});
-    if(correct){fb.className='ex-fb ok';fb.textContent='✓ Correct! (Watch the accents: '+answer+')';inp.className='ex-input correct';inp.disabled=true;aXP(3);return;}
+    var accentMatch=acceptables.some(function(a){return a.normalize('NFD').replace(/[\u0300-\u036f]/g,'')===userNoAccent;});
+    if(accentMatch){fb.className='ex-fb no';fb.innerHTML='Almost! Accents matter: <b>'+answer+'</b>';inp.className='ex-input wrong';setTimeout(function(){inp.className='ex-input';fb.textContent='';},2500);return;}
   }
   if(correct){
-    fb.className='ex-fb ok';fb.textContent='✓ Correct!';inp.className='ex-input correct';inp.disabled=true;aXP(3);
+    fb.className='ex-fb ok';fb.textContent='Correct!';inp.className='ex-input correct';inp.disabled=true;
   } else {
     fb.className='ex-fb no';fb.textContent='✗ Try again';inp.className='ex-input wrong';
     setTimeout(function(){inp.className='ex-input';fb.textContent='';},1500);
@@ -14757,12 +14781,16 @@ function rateCard(c,r){
   c.ease=Math.max(1.3,Math.min(3,c.ease+(easeAdj[r]||0)));
   c.interval=intervals[r]||0;
   if(r>=3)c.reps++;
+  // Track Known (3w) selections for mastery
+  if(!c.knownCount)c.knownCount=0;
+  if(r===6){c.knownCount++;if(c.knownCount>=4){c.state='mastered';c.due='9999-12-31';sv();logCardReview();return;}}
+  else if(r<4){c.knownCount=0;} // reset if you struggle
   c.state=r<3?'learning':'review';
   var n=new Date();
   if(c.interval===0){n.setHours(n.getHours()+(r===0?0.5:r===1?1:3));}
   else{n.setDate(n.getDate()+c.interval);}
   c.due=n.toISOString().slice(0,10);
-  sv();
+  sv();logCardReview();
 }
 /* ═══ PROGRESSIVE CARD UNLOCK ═══ */
 function getUnlockedLevels(){
@@ -14795,24 +14823,33 @@ function cardAvailable(c){
 var _ulCache=null,_ulTs=0;
 function getUL(){var now=Date.now();if(_ulCache&&now-_ulTs<2000)return _ulCache;_ulCache=getUnlockedLevels();_ulTs=now;return _ulCache;}
 
-function avail(dk){var t=td(),ul=getUL();return cards.filter(function(c){if(!ul.has(c.lv))return false;if(dk&&dk!=='all'&&c.dk!==dk)return false;return c.due<=t||c.state==='new';});}
-function getDue(){var t=td(),ul=getUL();return cards.filter(function(c){return ul.has(c.lv)&&c.due<=t&&c.state!=='new';}).length;}
+function avail(dk){var t=td(),ul=getUL();return cards.filter(function(c){if(c.state==='mastered')return false;if(!ul.has(c.lv))return false;if(dk&&dk!=='all'&&c.dk!==dk)return false;return c.due<=t||c.state==='new';});}
+function getDue(){var t=td(),ul=getUL();return cards.filter(function(c){return c.state!=='mastered'&&ul.has(c.lv)&&c.due<=t&&c.state!=='new';}).length;}
 function getNew(){var ul=getUL();return cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';}).length;}
-function getLearned(){return cards.filter(function(c){return c.reps>0;}).length;}
+function getLearned(){return cards.filter(function(c){return c.reps>0&&c.state!=='mastered';}).length;}
+function getMastered(){return cards.filter(function(c){return c.state==='mastered';}).length;}
 function getLockedCount(){var ul=getUL();return cards.filter(function(c){return!ul.has(c.lv);}).length;}
 function rfFlashStats(){
   document.getElementById('fc-due').textContent=getDue();
   document.getElementById('fc-new').textContent=getNew();
-  document.getElementById('fc-tot').textContent=getLearned();
+  document.getElementById('fc-tot').textContent=getMastered();
   var locked=getLockedCount();
   document.getElementById('fc-locked').textContent=locked;
   var lvls=getUnlockedLevels();
   var lvlArr=Array.from(lvls);
   var nextLvl=!lvls.has('A2')?'A2: complete 3 A1 lessons':!lvls.has('B1')?'B1: complete 6 A1 + 3 A2 lessons':!lvls.has('B2')?'B2: complete 3 B1 lessons':!lvls.has('C1')?'C1: complete 3 B2 lessons':'All levels unlocked!';
   document.getElementById('fc-unlock-msg').innerHTML='Unlocked: <b>'+lvlArr.join(', ')+'</b> · Next unlock → '+nextLvl;
+  // Update daily counter
+  updateDailyCounter();
 }
-var sDk='all',sCards=[],sIdx=0,sFl=false,sCor=0;
+var sDk='all',sCards=[],sIdx=0,sFl=false,sCor=0,dailyCardCount=0;
 function setDk(d,el){sDk=d;document.querySelectorAll('.ftab').forEach(function(x){x.classList.remove('act');});el.classList.add('act');startStudy();}
+// Daily card review tracking
+function loadDailyCount(){try{var d=JSON.parse(localStorage.getItem('qbc_daily')||'{}');if(d.date===td())dailyCardCount=d.count||0;else dailyCardCount=0;}catch(e){dailyCardCount=0;}}
+function saveDailyCount(){try{localStorage.setItem('qbc_daily',JSON.stringify({date:td(),count:dailyCardCount}));}catch(e){}}
+function logCardReview(){saveDailyCount();logToHistory();}
+function logToHistory(){try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');var today=td();var last=h.length?h[h.length-1]:null;if(last&&last.date===today){last.count=dailyCardCount;last.mastered=getMastered();}else{h.push({date:today,count:dailyCardCount,mastered:getMastered()});}if(h.length>365)h=h.slice(-365);localStorage.setItem('qbc_card_log',JSON.stringify(h));}catch(e){}}
+function updateDailyCounter(){var el=document.getElementById('fc-daily');if(el)el.textContent=dailyCardCount;var el2=document.getElementById('fc-total-reviewed');if(el2){try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');var total=h.reduce(function(s,d){return s+d.count;},0);el2.textContent=total;}catch(e){}}}
 function startStudy(){
   sCards=avail(sDk).sort(function(){return Math.random()-.5;}).slice(0,20);
   if(!sCards.length){
@@ -14846,7 +14883,7 @@ function rnFC(){
   sFl=false;
 }
 function flipFC(){var fc=document.getElementById('fcard');if(!fc)return;fc.classList.toggle('flip');sFl=!sFl;if(sFl){document.getElementById('frates').style.display='grid';var kh=document.getElementById('kbd-hints');if(kh)kh.style.display='flex';}}
-function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;rnFC();rfFlashStats();aXP(r>=3?3:1);try{sEl('ds-cards',getLearned());}catch(e){}recordActivity();}
+function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;dailyCardCount++;rnFC();rfFlashStats();recordActivity();updateDailyCounter();}
 function showFDone(){
   var pct=Math.round(sCor/sCards.length*100);
   document.getElementById('flash-main').innerHTML='<div class="empty"><div class="empty-ico">'+(pct>=80?'🌟':pct>=60?'👍':'💪')+'</div><h3>Session complete!</h3><p>Reviewed '+sCards.length+' cards. '+sCor+' correct. The SRS algorithm has scheduled your next reviews.</p><button class="btn btn-primary" onclick="startStudy()" style="margin-top:8px;">Study again →</button></div>';
@@ -15297,7 +15334,7 @@ document.addEventListener('keydown',function(e){
 
 /* ═══ FLASHCARD MODE SWITCH ═══ */
 function setFCMode(mode){
-  ['study','browse','create','saved','practice'].forEach(function(m){
+  ['study','browse','create','saved','practice','mastered','log'].forEach(function(m){
     var el=document.getElementById('fc-'+m+'-mode');if(el)el.style.display=m===mode?'':'none';
     var btn=document.getElementById('fcm-'+m);if(btn)btn.classList.toggle('act',m===mode);
   });
@@ -15305,6 +15342,8 @@ function setFCMode(mode){
   if(mode==='browse')searchCards();
   if(mode==='create')rfCustomList();
   if(mode==='saved')rfSavedList();
+  if(mode==='mastered')showMasteredCards();
+  if(mode==='log')showActivityLog();
 }
 
 /* ═══ CARD BROWSER ═══ */
@@ -15405,6 +15444,64 @@ function convertAllSaved(){
 }
 function removeSaved(i){savedWords.splice(i,1);try{localStorage.setItem('qbc_saved',JSON.stringify(savedWords));}catch(e){}sv();rfSavedList();}
 
+/* ═══ MASTERED CARDS VIEW ═══ */
+function showMasteredCards(){
+  var el=document.getElementById('mastered-list');if(!el)return;
+  var mastered=cards.filter(function(c){return c.state==='mastered';});
+  if(!mastered.length){el.innerHTML='<p style="font-size:13px;color:var(--ink4);text-align:center;">No mastered cards yet. Rate a card "Known" (3w) four times to master it.</p>';return;}
+  var byDk={vocab:[],conj:[],phrase:[],grammar:[],quebec:[],custom:[]};
+  mastered.forEach(function(c){if(byDk[c.dk])byDk[c.dk].push(c);else byDk.vocab.push(c);});
+  var labels={vocab:'Vocabulary',conj:'Conjugation',phrase:'Phrases',grammar:'Grammar',quebec:'Quebec',custom:'Custom'};
+  var h='<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:12px;">'+mastered.length+' cards mastered</div>';
+  Object.keys(byDk).forEach(function(dk){
+    var arr=byDk[dk];if(!arr.length)return;
+    h+='<div style="font-size:11px;font-weight:700;color:var(--ink3);margin:12px 0 6px;">'+labels[dk]+' ('+arr.length+')</div>';
+    h+='<div class="browse-grid">';
+    arr.forEach(function(c){
+      h+='<div class="bc"><div class="bc-fr">'+c.f+'</div><div class="bc-bk">'+c.b+'</div><div class="bc-m"><span class="bct bct-new">'+c.lv+'</span><button class="bct bct-due" style="cursor:pointer;" onclick="unmasterCard(\''+c.id+'\')">Unmaster</button></div></div>';
+    });
+    h+='</div>';
+  });
+  el.innerHTML=h;
+}
+function unmasterCard(id){
+  var c=cards.find(function(x){return x.id===id;});
+  if(c){c.state='review';c.knownCount=0;c.due=td();c.interval=1;sv();showMasteredCards();rfFlashStats();}
+}
+
+/* ═══ ACTIVITY LOG ═══ */
+function showActivityLog(){
+  var el=document.getElementById('activity-log');if(!el)return;
+  try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');}catch(e){var h=[];}
+  if(!h.length){el.innerHTML='<p style="font-size:13px;color:var(--ink4);text-align:center;">No activity yet. Start reviewing flashcards to track your progress.</p>';return;}
+  var total=h.reduce(function(s,d){return s+d.count;},0);
+  var avg=Math.round(total/h.length);
+  var best=Math.max.apply(null,h.map(function(d){return d.count;}));
+  var html='<div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;">';
+  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+total+'</div><div style="font-size:10px;color:var(--ink4);">Total reviews</div></div>';
+  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+h.length+'</div><div style="font-size:10px;color:var(--ink4);">Days active</div></div>';
+  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+avg+'</div><div style="font-size:10px;color:var(--ink4);">Daily avg</div></div>';
+  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+best+'</div><div style="font-size:10px;color:var(--ink4);">Best day</div></div>';
+  html+='</div>';
+  // Show last 30 days as a bar chart
+  var last30=h.slice(-30);
+  var maxCount=Math.max.apply(null,last30.map(function(d){return d.count;}))||1;
+  html+='<div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:8px;">Last '+last30.length+' days</div>';
+  html+='<div style="display:flex;align-items:flex-end;gap:2px;height:100px;padding:4px 0;">';
+  last30.forEach(function(d){
+    var pct=Math.max(4,Math.round(d.count/maxCount*100));
+    html+='<div style="flex:1;min-width:6px;max-width:20px;background:var(--b);border-radius:3px 3px 0 0;height:'+pct+'%;opacity:.8;" title="'+d.date+': '+d.count+' cards"></div>';
+  });
+  html+='</div>';
+  // Daily breakdown table
+  html+='<div style="margin-top:16px;">';
+  h.slice().reverse().slice(0,30).forEach(function(d){
+    html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:12px;"><span style="color:var(--ink3);">'+d.date+'</span><span style="font-weight:700;color:var(--ink);">'+d.count+' cards</span><span style="color:var(--ink4);">'+d.mastered+' mastered</span></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
 /* ═══ EXPORT / IMPORT PROGRESS ═══ */
 function exportProgress(){
   sv(); // ensure latest state is saved
@@ -15443,7 +15540,7 @@ function importProgress(e){
       if(data.cardProgress){
         data.cardProgress.forEach(function(sc){
           var c=cards.find(function(x){return x.id===sc.id;});
-          if(c){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;}
+          if(c){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;c.knownCount=sc.knownCount||0;}
         });
       }
       // Save to localStorage and refresh UI
@@ -15461,7 +15558,7 @@ function importProgress(e){
 }
 
 /* ═══ INIT ═══ */
-ld();buildNav();buildDash();rfFlashStats();buildContinueHero();buildStreakBar();
+ld();loadDailyCount();buildNav();buildDash();rfFlashStats();buildContinueHero();buildStreakBar();
 
 try{sEl('ds-cards',getLearned());}catch(e){}
 customCards.forEach(function(cc){var ex=cards.find(function(c){return c.id===cc.id;});if(!ex)cards.push(Object.assign({},cc,{interval:0,ease:2.5,reps:0,due:td(),state:'new',ls:'default'}));});
