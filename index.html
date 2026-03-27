@@ -655,7 +655,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   <div class="nav-tabs">
     <button class="nav-tab act" id="nt-dash" onclick="goView('dashboard')"><span class="nav-tab-ico">D</span>Dashboard</button>
     <button class="nav-tab" id="nt-flash" onclick="goView('flash')"><span class="nav-tab-ico">F</span>Flashcards</button>
-    <button class="nav-tab" id="nt-practice" onclick="goView('flash');setTimeout(function(){setFCMode('practice');},100)"><span class="nav-tab-ico">P</span>Practice</button>
+    <button class="nav-tab" id="nt-practice" onclick="_flashModeOverride=true;goView('flash');setFCMode('practice');"><span class="nav-tab-ico">P</span>Practice</button>
     <button class="nav-tab" id="nt-verbs" onclick="goView('verbs')"><span class="nav-tab-ico">V</span>Verb Conjugator</button>
     <button class="nav-tab" id="nt-ref" onclick="goView('ref')"><span class="nav-tab-ico">R</span>Reference</button>
   </div>
@@ -755,20 +755,17 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   <div class="fc-modes" style="margin-top:12px;">
     <button class="fc-mode act" id="fcm-study" onclick="setFCMode('study')">Study</button>
     <button class="fc-mode" id="fcm-browse" onclick="setFCMode('browse')">Browse</button>
-    <button class="fc-mode" id="fcm-create" onclick="setFCMode('create')">Create</button>
+    <button class="fc-mode" id="fcm-create" onclick="setFCMode('create')">Add</button>
     <button class="fc-mode" id="fcm-practice" onclick="setFCMode('practice')">Practice</button>
     <button class="fc-mode" id="fcm-mastered" onclick="setFCMode('mastered')">Mastered</button>
-    <button class="fc-mode" id="fcm-log" onclick="setFCMode('log')">Activity</button>
+    <button class="fc-mode" id="fcm-log" onclick="setFCMode('log')">Stats</button>
   </div>
   <div id="fc-study-mode">
     <div class="flash-stats" style="margin-top:6px;">
-    <div class="fstat"><div class="fstat-v" id="fc-due">0</div><div class="fstat-l">Due today</div></div>
-    <div class="fstat"><div class="fstat-v" id="fc-new">0</div><div class="fstat-l">New cards</div></div>
-    <div class="fstat"><div class="fstat-v" id="fc-tot">0</div><div class="fstat-l">Mastered</div></div>
-    <div class="fstat"><div class="fstat-v" id="fc-daily">0</div><div class="fstat-l">Today</div></div>
-    <div class="fstat"><div class="fstat-v" id="fc-total-reviewed">0</div><div class="fstat-l">All time</div></div>
+    <div class="fstat"><div class="fstat-v" id="fc-assigned" style="color:var(--b);">0</div><div class="fstat-l">Assigned</div></div>
+    <div class="fstat"><div class="fstat-v" id="fc-daily" style="color:var(--g);">0</div><div class="fstat-l">Completed</div></div>
+    <div class="fstat"><div class="fstat-v" id="fc-circulation">0</div><div class="fstat-l">Cards</div></div>
   </div>
-  <div style="font-size:10px;color:var(--ink4);text-align:center;margin-bottom:6px;" id="fc-unlock-msg"></div>
   <div class="flash-tabs" id="flash-tabs">
     <button class="ftab act" onclick="setDk('all',this)">All</button>
     <button class="ftab" onclick="setDk('vocab',this)">Vocabulary</button>
@@ -869,7 +866,7 @@ var currentView='dashboard';
 function toggleMobNav(){var nav=document.getElementById('sidenav');var ov=document.getElementById('mob-overlay');nav.classList.toggle('open');ov.classList.toggle('show');}
 function closeMobNav(){document.getElementById('sidenav').classList.remove('open');document.getElementById('mob-overlay').classList.remove('show');}
 function toast(ico,msg){var t=document.getElementById('toast');document.getElementById('toast-text').textContent=msg;t.querySelector('.toast-ico').textContent=ico;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
-var _skipPush=false;
+var _skipPush=false,_flashModeOverride=false;
 function goView(v){
   currentView=v;closeMobNav();
   document.querySelectorAll('.page-view').forEach(function(el){el.classList.remove('active');});
@@ -879,7 +876,7 @@ function goView(v){
   var nt=document.getElementById('nt-'+v);if(nt)nt.classList.add('act');
   document.getElementById('sb-prog-wrap').style.display=(v==='lesson'||v==='quiz')?'':'none';
   document.getElementById('main-scroll').scrollTop=0;
-  if(v==='flash'){rfFlashStats();setFCMode('study');}
+  if(v==='flash'){rfFlashStats();if(!_flashModeOverride)setFCMode('study');_flashModeOverride=false;}
   if(v==='verbs')buildVerbCategories();
   if(v==='ref')buildRef();
   if(v==='dashboard'){buildDash();buildContinueHero();buildStreakBar();}
@@ -14840,17 +14837,19 @@ function getNew(){var ul=getUL();return cards.filter(function(c){return ul.has(c
 function getLearned(){return cards.filter(function(c){return c.reps>0&&c.state!=='mastered';}).length;}
 function getMastered(){return cards.filter(function(c){return c.state==='mastered';}).length;}
 function getLockedCount(){var ul=getUL();return cards.filter(function(c){return!ul.has(c.lv);}).length;}
+var NEW_CARDS_PER_DAY=20;
+function getNewToday(){
+  // Limit new cards to NEW_CARDS_PER_DAY per day
+  var ul=getUL();var newCards=cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';});
+  return Math.min(newCards.length,NEW_CARDS_PER_DAY);
+}
+function getAssigned(){return getDue()+getNewToday();}
+function getInCirculation(){return cards.filter(function(c){return c.state!=='mastered'&&c.state!=='new';}).length;}
 function rfFlashStats(){
-  document.getElementById('fc-due').textContent=getDue();
-  document.getElementById('fc-new').textContent=getNew();
-  document.getElementById('fc-tot').textContent=getMastered();
-  var locked=getLockedCount();
-  document.getElementById('fc-locked').textContent=locked;
-  var lvls=getUnlockedLevels();
-  var lvlArr=Array.from(lvls);
-  var nextLvl=!lvls.has('A2')?'A2: complete 3 A1 lessons':!lvls.has('B1')?'B1: complete 6 A1 + 3 A2 lessons':!lvls.has('B2')?'B2: complete 3 B1 lessons':!lvls.has('C1')?'C1: complete 3 B2 lessons':'All levels unlocked!';
-  document.getElementById('fc-unlock-msg').innerHTML='Unlocked: <b>'+lvlArr.join(', ')+'</b> · Next unlock → '+nextLvl;
-  // Update daily counter
+  var assigned=getAssigned();
+  var el=document.getElementById('fc-assigned');if(el)el.textContent=assigned;
+  var el2=document.getElementById('fc-daily');if(el2)el2.textContent=dailyCardCount;
+  var el3=document.getElementById('fc-circulation');if(el3)el3.textContent=getInCirculation();
   updateDailyCounter();
 }
 var sDk='all',sCards=[],sIdx=0,sFl=false,sCor=0,dailyCardCount=0;
@@ -14862,10 +14861,14 @@ function logCardReview(){saveDailyCount();logToHistory();}
 function logToHistory(){try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');var today=td();var last=h.length?h[h.length-1]:null;if(last&&last.date===today){last.count=dailyCardCount;last.mastered=getMastered();}else{h.push({date:today,count:dailyCardCount,mastered:getMastered()});}if(h.length>365)h=h.slice(-365);localStorage.setItem('qbc_card_log',JSON.stringify(h));}catch(e){}}
 function updateDailyCounter(){var el=document.getElementById('fc-daily');if(el)el.textContent=dailyCardCount;var el2=document.getElementById('fc-total-reviewed');if(el2){try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');var total=h.reduce(function(s,d){return s+d.count;},0);el2.textContent=total;}catch(e){}}}
 function startStudy(){
-  var all=avail(sDk).sort(function(){return Math.random()-.5;});
-  // Start with up to 20, but show all due cards if fewer than 20
-  var limit=Math.min(Math.max(20,getDue()),all.length);
-  sCards=all.slice(0,limit);
+  var t=td(),ul=getUL();
+  // Get due reviews (must do)
+  var dueCards=cards.filter(function(c){return c.state!=='mastered'&&c.state!=='new'&&ul.has(c.lv)&&c.due<=t&&(sDk==='all'||c.dk===sDk);});
+  // Get new cards (limit to NEW_CARDS_PER_DAY)
+  var newCards=cards.filter(function(c){return c.state==='new'&&ul.has(c.lv)&&(sDk==='all'||c.dk===sDk);}).sort(function(){return Math.random()-.5;}).slice(0,NEW_CARDS_PER_DAY);
+  // Combine: all due + limited new
+  var all=dueCards.concat(newCards).sort(function(){return Math.random()-.5;});
+  sCards=all;
   if(!sCards.length){
     var locked=getLockedCount();var lvls=getUnlockedLevels();
     var lvlStr=Array.from(lvls).join(', ');
