@@ -653,10 +653,11 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <div class="nav-logo">Québéc<span>ois</span></div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab act" id="nt-dash" onclick="goView('dashboard')"><span class="nav-tab-ico">📊</span>Dashboard</button>
-    <button class="nav-tab" id="nt-flash" onclick="goView('flash')"><span class="nav-tab-ico">🃏</span>Flashcards</button>
-    <button class="nav-tab" id="nt-verbs" onclick="goView('verbs')"><span class="nav-tab-ico">📐</span>Verb Conjugator</button>
-    <button class="nav-tab" id="nt-ref" onclick="goView('ref')"><span class="nav-tab-ico">📚</span>Reference</button>
+    <button class="nav-tab act" id="nt-dash" onclick="goView('dashboard')"><span class="nav-tab-ico">D</span>Dashboard</button>
+    <button class="nav-tab" id="nt-flash" onclick="goView('flash')"><span class="nav-tab-ico">F</span>Flashcards</button>
+    <button class="nav-tab" id="nt-practice" onclick="goView('flash');setTimeout(function(){setFCMode('practice');},100)"><span class="nav-tab-ico">P</span>Practice</button>
+    <button class="nav-tab" id="nt-verbs" onclick="goView('verbs')"><span class="nav-tab-ico">V</span>Verb Conjugator</button>
+    <button class="nav-tab" id="nt-ref" onclick="goView('ref')"><span class="nav-tab-ico">R</span>Reference</button>
   </div>
   <div class="nav-divider"></div>
   <div class="nav-units" id="nav-units"></div>
