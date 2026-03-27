@@ -16259,6 +16259,7 @@ async function ghPush(){
   }catch(e){
     console.error('GitHub push error:',e);
     ghSync.syncing=false;ghUpdateUI();
+    ghSync._lastPushError=e.message;
     return false;
   }
 }
@@ -16304,7 +16305,7 @@ function ghForceSync(){
     // Small delay before push to avoid SHA race
     setTimeout(function(){
       ghPush().then(function(ok2){
-        toast('',ok2?'Sync complete!':'Push failed');
+        toast('',ok2?'Sync complete!':'Push failed: '+(ghSync._lastPushError||'unknown'));
       });
     },1000);
   });
