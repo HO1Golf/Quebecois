@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T00:47:17.374Z",
+  "synced": "2026-03-27T00:48:38.490Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -10,6 +10,124 @@
   ],
   "savedWords": [],
   "customCards": [],
-  "streak": {},
-  "cardProgress": []
+  "streak": {
+    "days": [
+      "2026-03-27"
+    ],
+    "streak": 1
+  },
+  "cardProgress": [
+    {
+      "id": "g1001",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review"
+    },
+    {
+      "id": "g1387",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review"
+    },
+    {
+      "id": "x10359",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review"
+    },
+    {
+      "id": "x11474",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "x11503",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review"
+    },
+    {
+      "id": "x11529",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "x11753",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "x11755",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "z30493",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "m40025",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review"
+    },
+    {
+      "id": "m40404",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "m40432",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review"
+    },
+    {
+      "id": "f50003",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    },
+    {
+      "id": "f50019",
+      "interval": 7,
+      "ease": 2.6,
+      "reps": 1,
+      "due": "2026-04-03",
+      "state": "review"
+    }
+  ]
 }
