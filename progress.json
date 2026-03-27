@@ -1,0 +1,77 @@
+{
+  "version": "qbc-sync-v1",
+  "synced": "2026-03-27T02:47:44.414Z",
+  "xp": 0,
+  "totalH": 0,
+  "lessDone": 0,
+  "done": [],
+  "unlocked": [
+    "default"
+  ],
+  "savedWords": [],
+  "customCards": [],
+  "streak": {
+    "days": [
+      "2026-03-27"
+    ],
+    "streak": 1
+  },
+  "cardLog": [
+    {
+      "date": "2026-03-27",
+      "count": 5,
+      "mastered": 0
+    }
+  ],
+  "dailyCount": {
+    "date": "2026-03-27",
+    "count": 5
+  },
+  "cardProgress": [
+    {
+      "id": "z30480",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "z30484",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "m40412",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "m40414",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "f50087",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    }
+  ]
+}
