@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:41:39.261Z",
+  "synced": "2026-03-27T02:42:24.726Z",
   "xp": 90,
   "totalH": 0,
   "lessDone": 1,
@@ -65,26 +65,6 @@
       "en": "Excuse me / Sorry"
     },
     {
-      "fr": "Je m'appelle...",
-      "en": "My name is..."
-    },
-    {
-      "fr": "Je viens de... / Je suis de...",
-      "en": "I'm from..."
-    },
-    {
-      "fr": "J'habite à Montréal.",
-      "en": "I live in Montreal."
-    },
-    {
-      "fr": "Je suis analyste financier.",
-      "en": "I'm a financial analyst. (no article!)"
-    },
-    {
-      "fr": "J'ai 28 ans.",
-      "en": "I'm 28 (lit: I HAVE 28 years)"
-    },
-    {
       "fr": "AllÃ´",
       "en": "Hello / Hey (Quebec casual)"
     },
@@ -109,6 +89,26 @@
       "en": "Excuse me / Sorry"
     },
     {
+      "fr": "Je m'appelle...",
+      "en": "My name is..."
+    },
+    {
+      "fr": "Je viens de... / Je suis de...",
+      "en": "I'm from..."
+    },
+    {
+      "fr": "J'habite Ã  MontrÃ©al.",
+      "en": "I live in Montreal."
+    },
+    {
+      "fr": "Je suis analyste financier.",
+      "en": "I'm a financial analyst. (no article!)"
+    },
+    {
+      "fr": "J'ai 28 ans.",
+      "en": "I'm 28 (lit: I HAVE 28 years)"
+    },
+    {
       "fr": "AllÃÂ´",
       "en": "Hello / Hey (Quebec casual)"
     },
@@ -131,6 +131,30 @@
     {
       "fr": "Excusez-moi / DÃÂ©solÃÂ©(e)",
       "en": "Excuse me / Sorry"
+    },
+    {
+      "fr": "AllÃÂÃÂ´",
+      "en": "Hello / Hey (Quebec casual)"
+    },
+    {
+      "fr": "Bonne journÃÂÃÂ©e!",
+      "en": "Have a good day!"
+    },
+    {
+      "fr": "Bonne soirÃÂÃÂ©e!",
+      "en": "Have a good evening!"
+    },
+    {
+      "fr": "ÃÂÃÂ tantÃÂÃÂ´t!",
+      "en": "See you later today! (Quebec)"
+    },
+    {
+      "fr": "S'il vous plaÃÂÃÂ®t / S'il te plaÃÂÃÂ®t",
+      "en": "Please (formal / informal)"
+    },
+    {
+      "fr": "Excusez-moi / DÃÂÃÂ©solÃÂÃÂ©(e)",
+      "en": "Excuse me / Sorry"
     }
   ],
   "customCards": [],
@@ -143,104 +167,13 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 12,
+      "count": 4,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 12
+    "count": 4
   },
-  "cardProgress": [
-    {
-      "id": "g1404",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "g1477",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "g1483",
-      "interval": 1,
-      "ease": 2.5,
-      "reps": 1,
-      "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "x10158",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "x10159",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51480",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51561",
-      "interval": 1,
-      "ease": 2.5,
-      "reps": 1,
-      "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "r80581",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "r80587",
-      "interval": 1,
-      "ease": 2.5,
-      "reps": 1,
-      "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "r80589",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    }
-  ]
+  "cardProgress": []
 }
