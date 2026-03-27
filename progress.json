@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T01:59:24.359Z",
+  "synced": "2026-03-27T02:08:25.437Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -27,24 +27,5 @@
     "date": "2026-03-27",
     "count": 2
   },
-  "cardProgress": [
-    {
-      "id": "g1325",
-      "interval": 0,
-      "ease": 2.4,
-      "reps": 0,
-      "due": "2026-03-27",
-      "state": "learning",
-      "knownCount": 0
-    },
-    {
-      "id": "g1438",
-      "interval": 0,
-      "ease": 2.4,
-      "reps": 0,
-      "due": "2026-03-27",
-      "state": "learning",
-      "knownCount": 0
-    }
-  ]
+  "cardProgress": []
 }
