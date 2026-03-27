@@ -1,0 +1,50 @@
+{
+  "version": "qbc-sync-v1",
+  "synced": "2026-03-27T01:59:24.359Z",
+  "xp": 0,
+  "totalH": 0,
+  "lessDone": 0,
+  "done": [],
+  "unlocked": [
+    "default"
+  ],
+  "savedWords": [],
+  "customCards": [],
+  "streak": {
+    "days": [
+      "2026-03-27"
+    ],
+    "streak": 1
+  },
+  "cardLog": [
+    {
+      "date": "2026-03-27",
+      "count": 2,
+      "mastered": 0
+    }
+  ],
+  "dailyCount": {
+    "date": "2026-03-27",
+    "count": 2
+  },
+  "cardProgress": [
+    {
+      "id": "g1325",
+      "interval": 0,
+      "ease": 2.4,
+      "reps": 0,
+      "due": "2026-03-27",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "g1438",
+      "interval": 0,
+      "ease": 2.4,
+      "reps": 0,
+      "due": "2026-03-27",
+      "state": "learning",
+      "knownCount": 0
+    }
+  ]
+}
