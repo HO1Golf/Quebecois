@@ -15881,8 +15881,9 @@ function importProgress(e){
       savedWords=data.savedWords||[];
       customCards=data.customCards||[];
       // Restore card progress
-      if(data.cardProgress){
+      if(data.cardProgress&&Array.isArray(data.cardProgress)){
         data.cardProgress.forEach(function(sc){
+          if(!sc||!sc.id) return;
           var c=cards.find(function(x){return x.id===sc.id;});
           if(c){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;c.knownCount=sc.knownCount||0;}
         });
@@ -16115,8 +16116,9 @@ function ghBuildPayload(){
 }
 
 function ghApplyPayload(data){
+  if(!data||typeof data!=='object') return;
   _ghApplying=true;
-  try{ _ghApplyInner(data); }finally{ _ghApplying=false; }
+  try{ _ghApplyInner(data); }catch(e){console.error('ghApplyPayload error:',e);}finally{ _ghApplying=false; }
 }
 function _ghApplyInner(data){
   // Merge: take the higher XP, combine completed lessons, etc.
@@ -16138,8 +16140,9 @@ function _ghApplyInner(data){
     });
   }
   // For card progress, take whichever has more reps (more practice)
-  if(data.cardProgress){
+  if(data.cardProgress&&Array.isArray(data.cardProgress)){
     data.cardProgress.forEach(function(sc){
+      if(!sc||!sc.id) return;
       var c=cards.find(function(x){return x.id===sc.id;});
       if(c && sc.reps>(c.reps||0)){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;c.knownCount=sc.knownCount||0;}
     });
