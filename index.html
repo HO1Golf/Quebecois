@@ -16079,14 +16079,25 @@ var ghSync={
 };
 
 function ghSetToken(t){
-  ghSync.token=t.trim();
+  ghSync.token=t.trim().replace(/\s/g,'');
   if(ghSync.token){
     localStorage.setItem('qbc_gh_token',ghSync.token);
-    toast('','Token saved. Syncing...');
-    ghPull().then(function(ok){
-      if(ok){toast('','Pull succeeded! Pushing...');ghPush();}
-      else{toast('','Pull failed — check token permissions');}
-    }).catch(function(e){toast('','Sync error: '+e.message);});
+    toast('','Token saved ('+ghSync.token.slice(0,4)+'...). Testing...');
+    // Test token first
+    fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo,{headers:ghGetHeaders()})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    }).then(function(repo){
+      toast('','Connected to '+repo.full_name+'! Syncing...');
+      return ghPull();
+    }).then(function(ok){
+      if(ok){ghPush();}
+      else{toast('','Pull failed after connect');}
+    }).catch(function(e){
+      toast('','Token test failed: '+e.message);
+      console.error('Token test:',e);
+    });
   } else {
     localStorage.removeItem('qbc_gh_token');
     toast('','Token removed');
@@ -16200,7 +16211,8 @@ async function ghPull(){
     if(!r.ok){
       var errBody=await r.text();
       console.error('GH Pull HTTP error:',r.status,errBody);
-      throw new Error('HTTP '+r.status);
+      toast('','Pull error '+r.status+': '+errBody.slice(0,100));
+      throw new Error('HTTP '+r.status+' — '+errBody.slice(0,80));
     }
     var j=await r.json();
     var content=atob(j.content.replace(/\n/g,''));
