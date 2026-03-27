@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T03:15:03.047Z",
+  "synced": "2026-03-27T03:15:19.109Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -10,8 +10,140 @@
   ],
   "savedWords": [],
   "customCards": [],
-  "streak": {},
-  "cardLog": [],
-  "dailyCount": {},
-  "cardProgress": []
+  "streak": {
+    "days": [
+      "2026-03-27"
+    ],
+    "streak": 1
+  },
+  "cardLog": [
+    {
+      "date": "2026-03-27",
+      "count": 13,
+      "mastered": 0
+    }
+  ],
+  "dailyCount": {
+    "date": "2026-03-27",
+    "count": 13
+  },
+  "cardProgress": [
+    {
+      "id": "g1214",
+      "interval": 0,
+      "ease": 2.2,
+      "reps": 0,
+      "due": "2026-03-27T03:44:41.051Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "x11469",
+      "interval": 0,
+      "ease": 2.3,
+      "reps": 0,
+      "due": "2026-03-27T04:14:27.472Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "x11474",
+      "interval": 0,
+      "ease": 2.4,
+      "reps": 0,
+      "due": "2026-03-27T06:14:29.080Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "x11507",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "x11739",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "w20591",
+      "interval": 0,
+      "ease": 2.4,
+      "reps": 0,
+      "due": "2026-03-27T06:14:48.801Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "w20610",
+      "interval": 0,
+      "ease": 2.3,
+      "reps": 0,
+      "due": "2026-03-27T04:14:37.732Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "w20851",
+      "interval": 0,
+      "ease": 2.4,
+      "reps": 0,
+      "due": "2026-03-27T06:14:39.433Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "w20894",
+      "interval": 0,
+      "ease": 2.2,
+      "reps": 0,
+      "due": "2026-03-27T03:44:35.782Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "w20965",
+      "interval": 0,
+      "ease": 2.3,
+      "reps": 0,
+      "due": "2026-03-27T04:14:46.844Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "m40272",
+      "interval": 0,
+      "ease": 2.2,
+      "reps": 0,
+      "due": "2026-03-27T03:44:24.343Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "f50169",
+      "interval": 0,
+      "ease": 2.3,
+      "reps": 0,
+      "due": "2026-03-27T04:14:34.026Z",
+      "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "f50368",
+      "interval": 0,
+      "ease": 2.3,
+      "reps": 0,
+      "due": "2026-03-27T04:14:33.176Z",
+      "state": "learning",
+      "knownCount": 0
+    }
+  ]
 }
