@@ -16083,7 +16083,7 @@ function ghSetToken(t){
   if(ghSync.token){
     localStorage.setItem('qbc_gh_token',ghSync.token);
     toast('','Token saved. Syncing...');
-    ghPush();
+    ghPull().then(function(ok){if(ok)ghPush();});
   } else {
     localStorage.removeItem('qbc_gh_token');
     toast('','Token removed');
@@ -16105,7 +16105,9 @@ function ghBuildPayload(){
     savedWords:savedWords,
     customCards:customCards,
     streak:JSON.parse(localStorage.getItem('qbc_streak')||'{}'),
-    cardProgress:cards.filter(function(c){return c.reps>0;}).map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state};})
+    cardLog:JSON.parse(localStorage.getItem('qbc_card_log')||'[]'),
+    dailyCount:JSON.parse(localStorage.getItem('qbc_daily')||'{}'),
+    cardProgress:cards.filter(function(c){return c.reps>0||c.state!=='new';}).map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state,knownCount:c.knownCount||0};})
   };
 }
 
@@ -16132,8 +16134,31 @@ function ghApplyPayload(data){
   if(data.cardProgress){
     data.cardProgress.forEach(function(sc){
       var c=cards.find(function(x){return x.id===sc.id;});
-      if(c && sc.reps>(c.reps||0)){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;}
+      if(c && sc.reps>(c.reps||0)){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;c.knownCount=sc.knownCount||0;}
     });
+  }
+  // Merge activity log (combine days, take higher count per day)
+  if(data.cardLog){
+    try{
+      var localLog=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');
+      var logMap={};
+      localLog.forEach(function(d){logMap[d.date]={count:d.count,mastered:d.mastered||0};});
+      data.cardLog.forEach(function(d){
+        if(!logMap[d.date]||d.count>logMap[d.date].count)logMap[d.date]={count:d.count,mastered:d.mastered||0};
+      });
+      var merged=Object.keys(logMap).sort().map(function(date){return{date:date,count:logMap[date].count,mastered:logMap[date].mastered};});
+      if(merged.length>365)merged=merged.slice(-365);
+      localStorage.setItem('qbc_card_log',JSON.stringify(merged));
+    }catch(e){}
+  }
+  // Merge daily count
+  if(data.dailyCount&&data.dailyCount.date){
+    try{
+      var localDaily=JSON.parse(localStorage.getItem('qbc_daily')||'{}');
+      if(data.dailyCount.date===td()&&(data.dailyCount.count||0)>(localDaily.count||0)){
+        dailyCardCount=data.dailyCount.count;saveDailyCount();
+      }
+    }catch(e){}
   }
   // Merge streak
   if(data.streak){
@@ -16182,33 +16207,41 @@ async function ghPull(){
   }
 }
 
-async function ghPush(){
+async function ghPush(retries){
   if(!ghSync.token){return false;}
+  if(retries===undefined)retries=2;
   ghSync.syncing=true;ghSync.dirty=false;ghUpdateUI();
   try{
-    // Get current file SHA (needed for updates)
+    // Pull first to merge remote changes, then get fresh SHA
     var sha=null;
     var r=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file+'?ref='+ghSync.branch,{headers:ghGetHeaders()});
-    if(r.ok){var j=await r.json();sha=j.sha;}
-    // Push new content
+    if(r.ok){
+      var j=await r.json();sha=j.sha;
+      // Merge remote data before pushing
+      try{var content=atob(j.content.replace(/\n/g,''));var remoteData=JSON.parse(content);ghApplyPayload(remoteData);}catch(e){}
+    }
     var payload=ghBuildPayload();
     var body={
-      message:'Sync progress — '+new Date().toISOString().slice(0,16),
+      message:'Sync progress \u2014 '+new Date().toISOString().slice(0,16),
       content:btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))),
       branch:ghSync.branch
     };
     if(sha) body.sha=sha;
     var r2=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file,{method:'PUT',headers:ghGetHeaders(),body:JSON.stringify(body)});
+    if(r2.status===409&&retries>0){
+      // SHA conflict — retry with fresh SHA
+      ghSync.syncing=false;
+      return ghPush(retries-1);
+    }
     if(!r2.ok){var err=await r2.json();throw new Error(err.message||'HTTP '+r2.status);}
     ghSync.lastSync=new Date().toLocaleString();
     localStorage.setItem('qbc_gh_lastsync',ghSync.lastSync);
     ghSync.syncing=false;ghUpdateUI();
-    toast('☁️','Progress synced to cloud!');
     return true;
   }catch(e){
     console.error('GitHub push error:',e);
     ghSync.syncing=false;ghUpdateUI();
-    toast('⚠️','Sync failed: '+e.message);
+    toast('','Sync failed — try again');
     return false;
   }
 }
