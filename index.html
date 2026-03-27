@@ -16126,6 +16126,10 @@ function ghBuildPayload(){
 }
 
 function ghApplyPayload(data){
+  _ghApplying=true;
+  try{ _ghApplyInner(data); }finally{ _ghApplying=false; }
+}
+function _ghApplyInner(data){
   // Merge: take the higher XP, combine completed lessons, etc.
   if((data.xp||0)>xp) xp=data.xp;
   if((data.lessDone||0)>lessDone) lessDone=data.lessDone;
@@ -16265,7 +16269,12 @@ async function ghPush(retries){
   }catch(e){
     console.error('GitHub push error:',e);
     ghSync.syncing=false;ghUpdateUI();
-    toast('','Sync failed — try again');
+    // Don't spam toasts — only show if not a debounce retry
+    if(!ghSync._toastCooldown){
+      toast('','Sync push failed: '+e.message);
+      ghSync._toastCooldown=true;
+      setTimeout(function(){ghSync._toastCooldown=false;},30000);
+    }
     return false;
   }
 }
@@ -16279,9 +16288,10 @@ function ghDebouncedPush(){
 
 // Patch sv() to also trigger cloud sync
 var _origSv=sv;
+var _ghApplying=false;
 sv=function(){
   _origSv();
-  ghDebouncedPush();
+  if(!_ghApplying) ghDebouncedPush();
 };
 
 function ghUpdateUI(){
