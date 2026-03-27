@@ -1,12 +1,15 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:16:12.217Z",
-  "xp": 10,
+  "synced": "2026-03-27T02:17:30.969Z",
+  "xp": 90,
   "totalH": 0,
-  "lessDone": 0,
-  "done": [],
+  "lessDone": 1,
+  "done": [
+    "414-0"
+  ],
   "unlocked": [
-    "default"
+    "default",
+    "414-0"
   ],
   "savedWords": [
     {
@@ -72,13 +75,13 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 3,
+      "count": 4,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 3
+    "count": 4
   },
   "cardProgress": [
     {
@@ -88,6 +91,15 @@
       "reps": 0,
       "due": "2026-03-27",
       "state": "learning",
+      "knownCount": 0
+    },
+    {
+      "id": "x11795",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
       "knownCount": 0
     }
   ]
