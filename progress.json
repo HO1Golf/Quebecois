@@ -1,7 +1,7 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-26T23:52:45.481Z",
-  "xp": 171,
+  "synced": "2026-03-27T00:22:40.732Z",
+  "xp": 176,
   "totalH": 0,
   "lessDone": 1,
   "done": [
@@ -63,14 +63,39 @@
     {
       "fr": "Excusez-moi / Désolé(e)",
       "en": "Excuse me / Sorry"
+    },
+    {
+      "fr": "AllÃ´",
+      "en": "Hello / Hey (Quebec casual)"
+    },
+    {
+      "fr": "Bonne journÃ©e!",
+      "en": "Have a good day!"
+    },
+    {
+      "fr": "Bonne soirÃ©e!",
+      "en": "Have a good evening!"
+    },
+    {
+      "fr": "Ã tantÃ´t!",
+      "en": "See you later today! (Quebec)"
+    },
+    {
+      "fr": "S'il vous plaÃ®t / S'il te plaÃ®t",
+      "en": "Please (formal / informal)"
+    },
+    {
+      "fr": "Excusez-moi / DÃ©solÃ©(e)",
+      "en": "Excuse me / Sorry"
     }
   ],
   "customCards": [],
   "streak": {
     "days": [
-      "2026-03-26"
+      "2026-03-26",
+      "2026-03-27"
     ],
-    "streak": 1
+    "streak": 2
   },
   "cardProgress": []
 }
