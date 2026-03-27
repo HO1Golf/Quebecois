@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:13:36.598Z",
+  "synced": "2026-03-27T02:14:07.508Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -60,26 +60,6 @@
     {
       "fr": "Excusez-moi / Désolé(e)",
       "en": "Excuse me / Sorry"
-    },
-    {
-      "fr": "Je m'appelle...",
-      "en": "My name is..."
-    },
-    {
-      "fr": "Je viens de... / Je suis de...",
-      "en": "I'm from..."
-    },
-    {
-      "fr": "J'habite à Montréal.",
-      "en": "I live in Montreal."
-    },
-    {
-      "fr": "Je suis analyste financier.",
-      "en": "I'm a financial analyst. (no article!)"
-    },
-    {
-      "fr": "J'ai 28 ans.",
-      "en": "I'm 28 (lit: I HAVE 28 years)"
     }
   ],
   "customCards": [],
@@ -92,104 +72,13 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 12,
+      "count": 2,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 12
+    "count": 2
   },
-  "cardProgress": [
-    {
-      "id": "g1404",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "g1477",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "g1483",
-      "interval": 1,
-      "ease": 2.5,
-      "reps": 1,
-      "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "x10158",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "x10159",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51480",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51561",
-      "interval": 1,
-      "ease": 2.5,
-      "reps": 1,
-      "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "r80581",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "r80587",
-      "interval": 1,
-      "ease": 2.5,
-      "reps": 1,
-      "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "r80589",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    }
-  ]
+  "cardProgress": []
 }
