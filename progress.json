@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:09:52.607Z",
+  "synced": "2026-03-27T02:10:12.835Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -19,13 +19,23 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 2,
+      "count": 3,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 2
+    "count": 3
   },
-  "cardProgress": []
+  "cardProgress": [
+    {
+      "id": "g1404",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    }
+  ]
 }
