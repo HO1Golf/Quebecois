@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:51:43.832Z",
+  "synced": "2026-03-27T03:04:03.068Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -18,7 +18,7 @@
       "en": "Hi / Hey (informal)"
     },
     {
-      "fr": "Allô",
+      "fr": "AllÃ´",
       "en": "Hello / Hey (Quebec casual)"
     },
     {
@@ -30,11 +30,11 @@
       "en": "Goodbye"
     },
     {
-      "fr": "Bonne journée!",
+      "fr": "Bonne journÃ©e!",
       "en": "Have a good day!"
     },
     {
-      "fr": "Bonne soirée!",
+      "fr": "Bonne soirÃ©e!",
       "en": "Have a good evening!"
     },
     {
@@ -42,7 +42,7 @@
       "en": "Have a good weekend! (Quebec)"
     },
     {
-      "fr": "À tantôt!",
+      "fr": "Ã tantÃ´t!",
       "en": "See you later today! (Quebec)"
     },
     {
@@ -50,7 +50,7 @@
       "en": "Thank you (very much)"
     },
     {
-      "fr": "S'il vous plaît / S'il te plaît",
+      "fr": "S'il vous plaÃ®t / S'il te plaÃ®t",
       "en": "Please (formal / informal)"
     },
     {
@@ -58,7 +58,7 @@
       "en": "You're welcome! (Quebec only!)"
     },
     {
-      "fr": "Excusez-moi / Désolé(e)",
+      "fr": "Excusez-moi / DÃ©solÃ©(e)",
       "en": "Excuse me / Sorry"
     }
   ],
@@ -72,15 +72,69 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 5,
+      "count": 6,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 5
+    "count": 6
   },
   "cardProgress": [
+    {
+      "id": "d07",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "g1148",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "g1411",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "h5113",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "h5136",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "x10061",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
     {
       "id": "z30480",
       "interval": 3,
