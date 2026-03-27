@@ -16083,7 +16083,10 @@ function ghSetToken(t){
   if(ghSync.token){
     localStorage.setItem('qbc_gh_token',ghSync.token);
     toast('','Token saved. Syncing...');
-    ghPull().then(function(ok){if(ok)ghPush();});
+    ghPull().then(function(ok){
+      if(ok){toast('','Pull succeeded! Pushing...');ghPush();}
+      else{toast('','Pull failed — check token permissions');}
+    }).catch(function(e){toast('','Sync error: '+e.message);});
   } else {
     localStorage.removeItem('qbc_gh_token');
     toast('','Token removed');
@@ -16190,11 +16193,19 @@ async function ghPull(){
   ghSync.syncing=true;ghUpdateUI();
   try{
     var r=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file+'?ref='+ghSync.branch,{headers:ghGetHeaders()});
-    if(r.status===404){ghSync.syncing=false;ghUpdateUI();return true;} // no remote file yet
-    if(!r.ok){throw new Error('HTTP '+r.status);}
+    if(r.status===404){
+      console.log('GH Pull: no remote file yet (404)');
+      ghSync.syncing=false;ghUpdateUI();return true;
+    }
+    if(!r.ok){
+      var errBody=await r.text();
+      console.error('GH Pull HTTP error:',r.status,errBody);
+      throw new Error('HTTP '+r.status);
+    }
     var j=await r.json();
     var content=atob(j.content.replace(/\n/g,''));
     var data=JSON.parse(content);
+    console.log('GH Pull: got remote data, cards:',data.cardProgress?data.cardProgress.length:0,'xp:',data.xp);
     ghApplyPayload(data);
     ghSync.lastSync=new Date().toLocaleString();
     localStorage.setItem('qbc_gh_lastsync',ghSync.lastSync);
@@ -16202,6 +16213,7 @@ async function ghPull(){
     return true;
   }catch(e){
     console.error('GitHub pull error:',e);
+    toast('','Sync pull failed: '+e.message);
     ghSync.syncing=false;ghUpdateUI();
     return false;
   }
@@ -16278,14 +16290,17 @@ function ghShowSetup(){
 }
 
 function ghForceSync(){
-  if(!ghSync.token){toast('⚠️','Set up your GitHub token first.');return;}
-  toast('☁️','Pulling from cloud...');
+  if(!ghSync.token){toast('','Set up your GitHub token first.');return;}
+  toast('','Syncing with cloud...');
   ghPull().then(function(ok){
     if(ok){
-      toast('☁️','Pushing to cloud...');
-      ghPush();
+      ghPush().then(function(ok2){
+        if(ok2) toast('','Sync complete!');
+      });
+    } else {
+      toast('','Sync failed — check your token');
     }
-  });
+  }).catch(function(e){toast('','Sync error: '+e.message);});
 }
 
 // Auto-pull on load if token exists
