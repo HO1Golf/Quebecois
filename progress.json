@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:51:28.323Z",
+  "synced": "2026-03-27T02:51:43.832Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -8,7 +8,60 @@
   "unlocked": [
     "default"
   ],
-  "savedWords": [],
+  "savedWords": [
+    {
+      "fr": "Bonjour",
+      "en": "Hello / Good day"
+    },
+    {
+      "fr": "Salut",
+      "en": "Hi / Hey (informal)"
+    },
+    {
+      "fr": "Allô",
+      "en": "Hello / Hey (Quebec casual)"
+    },
+    {
+      "fr": "Bonsoir",
+      "en": "Good evening"
+    },
+    {
+      "fr": "Au revoir",
+      "en": "Goodbye"
+    },
+    {
+      "fr": "Bonne journée!",
+      "en": "Have a good day!"
+    },
+    {
+      "fr": "Bonne soirée!",
+      "en": "Have a good evening!"
+    },
+    {
+      "fr": "Bonne fin de semaine!",
+      "en": "Have a good weekend! (Quebec)"
+    },
+    {
+      "fr": "À tantôt!",
+      "en": "See you later today! (Quebec)"
+    },
+    {
+      "fr": "Merci (beaucoup)",
+      "en": "Thank you (very much)"
+    },
+    {
+      "fr": "S'il vous plaît / S'il te plaît",
+      "en": "Please (formal / informal)"
+    },
+    {
+      "fr": "Bienvenue!",
+      "en": "You're welcome! (Quebec only!)"
+    },
+    {
+      "fr": "Excusez-moi / Désolé(e)",
+      "en": "Excuse me / Sorry"
+    }
+  ],
   "customCards": [],
   "streak": {
     "days": [
@@ -19,33 +72,15 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 10,
+      "count": 5,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 10
+    "count": 5
   },
   "cardProgress": [
-    {
-      "id": "d02",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "d08",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
     {
       "id": "z30480",
       "interval": 3,
@@ -88,33 +123,6 @@
       "ease": 2.5,
       "reps": 1,
       "due": "2026-03-28",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51465",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51470",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
-      "state": "review",
-      "knownCount": 0
-    },
-    {
-      "id": "f51493",
-      "interval": 3,
-      "ease": 2.55,
-      "reps": 1,
-      "due": "2026-03-30",
       "state": "review",
       "knownCount": 0
     }
