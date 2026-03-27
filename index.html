@@ -826,8 +826,9 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <div style="text-align:center;margin-bottom:16px;"><div class="les-tag">Practice tools</div></div>
     <div style="max-width:500px;margin:0 auto;">
       <div class="tool-grid" style="grid-template-columns:1fr 1fr;">
-        <div class="tool-card" onclick="showPractice('numbers')"><div class="tool-ico">🔢</div><h3>Number Trainer</h3><p>Drill French numbers until instant.</p></div>
-        <div class="tool-card" onclick="showPractice('grammar')"><div class="tool-ico">📝</div><h3>Grammar Drills</h3><p>Fill-in-the-blank exercises.</p></div>
+        <div class="tool-card" onclick="showPractice('mc')"><div class="tool-ico">?</div><h3>Multiple Choice</h3><p>Test your vocabulary with 4-option questions.</p></div>
+        <div class="tool-card" onclick="showPractice('numbers')"><div class="tool-ico">#</div><h3>Number Trainer</h3><p>Drill French numbers until instant.</p></div>
+        <div class="tool-card" onclick="showPractice('grammar')"><div class="tool-ico">G</div><h3>Grammar Drills</h3><p>Fill-in-the-blank exercises.</p></div>
       </div>
       <div id="practice-area" style="margin-top:16px;"></div>
     </div>
@@ -14658,6 +14659,7 @@ function showExAnswer(id){
   var answer=inp.getAttribute('data-answer');
   inp.value=answer;inp.className='ex-input';inp.disabled=true;
   fb.className='ex-fb no';fb.innerHTML='Answer: <b>'+answer+'</b>';
+  checkLessonUnlock();
 }
 function checkExAnswer(id){
   var inp=document.getElementById(id);
@@ -14678,20 +14680,34 @@ function checkExAnswer(id){
   }
   if(correct){
     fb.className='ex-fb ok';fb.textContent='Correct!';inp.className='ex-input correct';inp.disabled=true;
+    checkLessonUnlock();
   } else {
-    fb.className='ex-fb no';fb.textContent='✗ Try again';inp.className='ex-input wrong';
+    fb.className='ex-fb no';fb.textContent='Try again';inp.className='ex-input wrong';
     setTimeout(function(){inp.className='ex-input';fb.textContent='';},1500);
   }
+}
+function allExercisesDone(){
+  var inputs=document.querySelectorAll('#lcont .ex-input');
+  if(!inputs.length)return true;
+  var allDone=true;
+  inputs.forEach(function(inp){if(!inp.disabled)allDone=false;});
+  return allDone;
+}
+function checkLessonUnlock(){
+  var btn=document.getElementById('lesNextBtn');if(!btn)return;
+  var atBottom=btn.getAttribute('data-at-bottom')==='true';
+  var exDone=allExercisesDone();
+  if(atBottom&&exDone){btn.classList.remove('btn-next-locked');}
+  else{btn.classList.add('btn-next-locked');}
 }
 var _scrollUnlockHandler=null;
 function setupScrollUnlock(){
   var btn=document.getElementById('lesNextBtn');if(!btn)return;
   var container=document.getElementById('lcont');if(!container)return;
-  // Check if already at bottom (short lessons)
+  btn.setAttribute('data-at-bottom','false');
   function checkBottom(){
-    var rect=container.getBoundingClientRect();
     var navEl=container.querySelector('.les-nav');
-    if(navEl){var navRect=navEl.getBoundingClientRect();if(navRect.top<window.innerHeight+100){btn.classList.remove('btn-next-locked');if(_scrollUnlockHandler){window.removeEventListener('scroll',_scrollUnlockHandler);_scrollUnlockHandler=null;}}}
+    if(navEl){var navRect=navEl.getBoundingClientRect();if(navRect.top<window.innerHeight+100){btn.setAttribute('data-at-bottom','true');checkLessonUnlock();if(_scrollUnlockHandler&&allExercisesDone()){window.removeEventListener('scroll',_scrollUnlockHandler);_scrollUnlockHandler=null;}}}
   }
   checkBottom();
   _scrollUnlockHandler=function(){checkBottom();};
@@ -14890,9 +14906,77 @@ function showFDone(){
 }
 
 /* ═══ PRACTICE TOOLS ═══ */
+var mcQs=[],mcIdx=0,mcScore=0,mcTotal=0,mcAnswered=false;
+function generateMCQuestions(){
+  var ul=getUL();var pool=cards.filter(function(c){return ul.has(c.lv)&&c.dk==='vocab'&&c.b&&c.f;});
+  if(pool.length<10)pool=cards.filter(function(c){return c.dk==='vocab'&&c.b&&c.f;});
+  pool=pool.sort(function(){return Math.random()-.5;});
+  var qs=[];
+  for(var i=0;i<Math.min(20,pool.length);i++){
+    var card=pool[i];
+    // Get 3 wrong answers from other cards
+    var wrongs=pool.filter(function(c){return c.id!==card.id&&c.b!==card.b;}).sort(function(){return Math.random()-.5;}).slice(0,3);
+    if(wrongs.length<3)continue;
+    var dir=Math.random()>0.5?'fr2en':'en2fr';
+    var opts,correctIdx;
+    if(dir==='fr2en'){
+      opts=wrongs.map(function(c){return c.b;});
+      correctIdx=Math.floor(Math.random()*4);
+      opts.splice(correctIdx,0,card.b);
+      qs.push({q:'What does "'+card.f+'" mean?',opts:opts,a:correctIdx,exp:card.f+' = '+card.b});
+    } else {
+      opts=wrongs.map(function(c){return c.f;});
+      correctIdx=Math.floor(Math.random()*4);
+      opts.splice(correctIdx,0,card.f);
+      qs.push({q:'How do you say "'+card.b+'" in French?',opts:opts,a:correctIdx,exp:card.b+' = '+card.f});
+    }
+  }
+  return qs;
+}
+function startMCPractice(){
+  mcQs=generateMCQuestions();mcIdx=0;mcScore=0;mcTotal=0;mcAnswered=false;
+  if(!mcQs.length){document.getElementById('practice-area').innerHTML='<p style="text-align:center;color:var(--ink4);">Not enough cards to generate questions.</p>';return;}
+  renderMCQuestion();
+}
+function renderMCQuestion(){
+  if(mcIdx>=mcQs.length){
+    var pct=Math.round(mcScore/mcTotal*100);
+    document.getElementById('mc-area').innerHTML='<div style="text-align:center;padding:20px;"><h3>Practice Complete</h3><p>'+mcScore+'/'+mcTotal+' correct ('+pct+'%)</p><button class="btn btn-primary" onclick="startMCPractice()" style="margin-top:8px;">Practice Again</button></div>';
+    return;
+  }
+  var q=mcQs[mcIdx];mcAnswered=false;
+  var h='<div style="font-size:11px;color:var(--ink4);margin-bottom:4px;">'+(mcIdx+1)+' / '+mcQs.length+'</div>';
+  h+='<div style="height:3px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:16px;"><div style="height:100%;background:var(--b);border-radius:100px;width:'+Math.round(mcIdx/mcQs.length*100)+'%;transition:width .3s;"></div></div>';
+  h+='<div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px;">'+q.q+'</div>';
+  q.opts.forEach(function(o,i){
+    h+='<button class="q-opt" id="mc-opt-'+i+'" onclick="selectMC('+i+')" style="display:block;width:100%;text-align:left;margin-bottom:8px;">'+o+'</button>';
+  });
+  h+='<div id="mc-fb" style="margin-top:12px;display:none;padding:10px;border-radius:var(--rsm);font-size:13px;"></div>';
+  h+='<button class="btn btn-primary" id="mc-next" style="display:none;margin-top:10px;" onclick="mcIdx++;renderMCQuestion();">Next</button>';
+  document.getElementById('mc-area').innerHTML=h;
+}
+function selectMC(i){
+  if(mcAnswered)return;mcAnswered=true;mcTotal++;
+  var q=mcQs[mcIdx];var ok=i===q.a;
+  if(ok)mcScore++;
+  document.getElementById('mc-opt-'+i).classList.add(ok?'ok':'no');
+  if(!ok)document.getElementById('mc-opt-'+q.a).classList.add('ok');
+  document.querySelectorAll('#mc-area .q-opt').forEach(function(b){b.disabled=true;});
+  var fb=document.getElementById('mc-fb');
+  fb.style.display='block';
+  fb.style.background=ok?'var(--gl)':'var(--rl)';
+  fb.style.color=ok?'#065F46':'#991B1B';
+  fb.innerHTML=(ok?'Correct! ':'Incorrect. ')+q.exp;
+  document.getElementById('mc-next').style.display='';
+  document.getElementById('mc-score-v').textContent=mcScore+'/'+mcTotal;
+  dailyCardCount++;saveDailyCount();logToHistory();updateDailyCounter();
+}
 function showPractice(tool){
   var el=document.getElementById('practice-area');
-  if(tool==='numbers'){
+  if(tool==='mc'){
+    el.innerHTML='<div style="background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:24px;"><div style="font-size:10px;font-weight:700;color:var(--b);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;text-align:center;">Multiple Choice</div><div style="text-align:center;margin-bottom:12px;font-size:11px;color:var(--ink4);">Score: <span id="mc-score-v">0/0</span></div><div id="mc-area"></div></div>';
+    startMCPractice();
+  } else if(tool==='numbers'){
     el.innerHTML='<div style="background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center;"><div style="font-size:10px;font-weight:700;color:var(--b);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Number Trainer</div><div style="display:flex;gap:4px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;"><button class="btn btn-ghost nummode act" onclick="numMode(0,this)">0–20</button><button class="btn btn-ghost nummode" onclick="numMode(1,this)">0–100</button><button class="btn btn-ghost nummode" onclick="numMode(2,this)">0–1000</button><button class="btn btn-ghost nummode" onclick="numMode(3,this)">Mixed</button></div><div style="font-size:11px;color:var(--ink4);margin-bottom:4px;" id="num-prompt">What is this number in French?</div><div style="font-family:Fraunces,serif;font-size:48px;color:var(--ink);margin-bottom:16px;" id="num-display">0</div><input style="width:100%;max-width:280px;padding:10px 16px;border:2px solid var(--line);border-radius:100px;font-size:15px;text-align:center;font-family:inherit;outline:none;" id="num-input" placeholder="Type the French…" onkeypress="if(event.key===\'Enter\')checkNum()"><div style="margin-top:10px;display:flex;gap:6px;justify-content:center;"><button class="btn btn-primary" onclick="checkNum()">Check</button><button class="btn btn-ghost" onclick="skipNum()">Show answer</button></div><div id="num-fb" style="margin-top:10px;font-size:13px;display:none;padding:10px;border-radius:var(--rsm);"></div><div style="margin-top:12px;font-size:11px;color:var(--ink4);">Score: <b id="num-score">0</b> / <b id="num-total">0</b></div></div>';
     numMode(0,document.querySelector('.nummode'));
   } else if(tool==='grammar'){
