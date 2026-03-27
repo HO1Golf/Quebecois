@@ -655,7 +655,6 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   <div class="nav-tabs">
     <button class="nav-tab act" id="nt-dash" onclick="goView('dashboard')"><span class="nav-tab-ico">D</span>Dashboard</button>
     <button class="nav-tab" id="nt-flash" onclick="goView('flash')"><span class="nav-tab-ico">F</span>Flashcards</button>
-    <button class="nav-tab" id="nt-practice" onclick="_flashModeOverride=true;goView('flash');setFCMode('practice');"><span class="nav-tab-ico">P</span>Practice</button>
     <button class="nav-tab" id="nt-verbs" onclick="goView('verbs')"><span class="nav-tab-ico">V</span>Verb Conjugator</button>
     <button class="nav-tab" id="nt-ref" onclick="goView('ref')"><span class="nav-tab-ico">R</span>Reference</button>
   </div>
@@ -756,7 +755,6 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <button class="fc-mode act" id="fcm-study" onclick="setFCMode('study')">Study</button>
     <button class="fc-mode" id="fcm-browse" onclick="setFCMode('browse')">Browse</button>
     <button class="fc-mode" id="fcm-create" onclick="setFCMode('create')">Add</button>
-    <button class="fc-mode" id="fcm-practice" onclick="setFCMode('practice')">Practice</button>
     <button class="fc-mode" id="fcm-mastered" onclick="setFCMode('mastered')">Mastered</button>
     <button class="fc-mode" id="fcm-log" onclick="setFCMode('log')">Stats</button>
   </div>
@@ -817,18 +815,6 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   <div id="fc-saved-mode" style="display:none;">
     <div style="text-align:center;margin-bottom:16px;"><div class="les-tag">Word bank</div></div>
     <div id="saved-list" style="max-width:500px;margin:0 auto;"></div>
-  </div>
-  <!-- Practice Mode -->
-  <div id="fc-practice-mode" style="display:none;">
-    <div style="text-align:center;margin-bottom:16px;"><div class="les-tag">Practice tools</div></div>
-    <div style="max-width:500px;margin:0 auto;">
-      <div class="tool-grid" style="grid-template-columns:1fr 1fr;">
-        <div class="tool-card" onclick="showPractice('mc')"><div class="tool-ico">?</div><h3>Multiple Choice</h3><p>Test your vocabulary with 4-option questions.</p></div>
-        <div class="tool-card" onclick="showPractice('numbers')"><div class="tool-ico">#</div><h3>Number Trainer</h3><p>Drill French numbers until instant.</p></div>
-        <div class="tool-card" onclick="showPractice('grammar')"><div class="tool-ico">G</div><h3>Grammar Drills</h3><p>Fill-in-the-blank exercises.</p></div>
-      </div>
-      <div id="practice-area" style="margin-top:16px;"></div>
-    </div>
   </div>
   <div id="fc-mastered-mode" style="display:none;">
     <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:700;color:var(--ink);">Mastered Cards</div>
@@ -14900,17 +14886,8 @@ function getMCWrongs(c,n){
   if(pool.length<n)pool=cards.filter(function(x){return x.id!==c.id&&x.b!==c.b&&x.b;});
   return pool.sort(function(){return Math.random()-.5;}).slice(0,n);
 }
-function rnFC(){
-  if(sIdx>=sCards.length){showFDone();return;}
-  var c=sCards[sIdx],pct=Math.round(sIdx/sCards.length*100);
-  var mode=pickCardMode(c);
-  var lvc={A1:'var(--a1l)',A2:'var(--a2l)',B1:'var(--b1l)',B2:'var(--b2l)',C1:'var(--c1l)'};
-  var lvt={A1:'var(--a1)',A2:'var(--a2)',B1:'var(--b1)',B2:'var(--b2)',C1:'var(--c1)'};
-  var h='<div style="display:flex;flex-direction:column;flex:1;min-height:0;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-shrink:0;"><span style="font-size:10px;font-weight:600;color:var(--ink3);">'+(sIdx+1)+' / '+sCards.length+'</span><span style="font-size:9px;color:var(--ink5);">'+c.dk+' · '+c.lv+'</span></div>';
-  h+='<div style="height:2px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:6px;flex-shrink:0;"><div style="height:100%;background:linear-gradient(90deg,var(--b),var(--p));border-radius:100px;width:'+pct+'%;transition:width .3s;"></div></div>';
-  h+='<div class="fc-wrap" onclick="flipFC()" id="fcwrap"><div class="fc" id="fcard"><div class="fc-face"><div class="fc-cat">'+c.dk+'</div><div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';">'+c.lv+'</div><div class="fc-main">'+c.f+'</div><div class="fc-hint">tap to flip</div></div><div class="fc-face fc-bk"><div class="fc-cat">answer</div><div class="fc-main">'+c.b+'</div>'+(function(){var eng='';if(c.dk==='conj'){var parts=c.f.split(' — ');if(parts[0]){var vb=parts[0].trim().toLowerCase().replace(/^se\s+/,'');if(CONJ_DB[vb])eng=CONJ_DB[vb].en;if(!eng){for(var k in CONJ_DB){if(vb===k||vb.indexOf(k)===0||k.indexOf(vb)===0){eng=CONJ_DB[k].en;break;}}}if(!eng){var vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase()===vb;});if(vc)eng=vc.b;if(!vc){vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase().indexOf(vb)>=0;});if(vc)eng=vc.b;}}if(!eng){var exText=c.ex||'';var exMatch=exText.match(/^(to \w[\w\s/]+?)[\.,]/);if(exMatch)eng=exMatch[1];}}}var exLine=c.ex||'';var engLine=eng?'<div style="font-size:14px;color:var(--b);margin-top:12px;font-weight:600;">'+eng+'</div>':'';if(!eng&&c.dk!=='conj'){engLine='';if(c.b&&!/^[a-zA-Z]/.test(c.f||'')&&c.f!==c.b){engLine='';}}return engLine+(exLine?'<div class="fc-ex">'+exLine+'</div>':'');}())+'</div></div></div>';
-  h+='<div class="f-rates" id="frates" style="display:none;">';
+function rateButtons(){
+  var h='<div class="f-rates" id="frates" style="display:none;">';
   h+='<button class="f-rate r-0" onclick="rateS(0)"><span class="f-rk">1</span><div class="f-rl">30m</div><div class="f-ri">Again</div></button>';
   h+='<button class="f-rate r-1" onclick="rateS(1)"><span class="f-rk">2</span><div class="f-rl">1h</div><div class="f-ri">Hard</div></button>';
   h+='<button class="f-rate r-2" onclick="rateS(2)"><span class="f-rk">3</span><div class="f-rl">3h</div><div class="f-ri">Tough</div></button>';
@@ -14919,10 +14896,122 @@ function rnFC(){
   h+='<button class="f-rate r-5" onclick="rateS(5)"><span class="f-rk">6</span><div class="f-rl">1w</div><div class="f-ri">Easy</div></button>';
   h+='<button class="f-rate r-6" onclick="rateS(6)"><span class="f-rk">7</span><div class="f-rl">3w</div><div class="f-ri">Known</div></button>';
   h+='</div>';
-  h+='';
+  return h;
+}
+function fcHeader(c,pct){
+  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-shrink:0;"><span style="font-size:10px;font-weight:600;color:var(--ink3);">'+(sIdx+1)+' / '+sCards.length+'</span><span style="font-size:9px;color:var(--ink5);">'+c.dk+' · '+c.lv+'</span></div>';
+  h+='<div style="height:2px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:6px;flex-shrink:0;"><div style="height:100%;background:linear-gradient(90deg,var(--b),var(--p));border-radius:100px;width:'+pct+'%;transition:width .3s;"></div></div>';
+  return h;
+}
+function fcEngHint(c){
+  var eng='';if(c.dk==='conj'){var parts=c.f.split(' — ');if(parts[0]){var vb=parts[0].trim().toLowerCase().replace(/^se\s+/,'');if(CONJ_DB[vb])eng=CONJ_DB[vb].en;if(!eng){for(var k in CONJ_DB){if(vb===k||vb.indexOf(k)===0||k.indexOf(vb)===0){eng=CONJ_DB[k].en;break;}}}if(!eng){var vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase()===vb;});if(vc)eng=vc.b;if(!vc){vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase().indexOf(vb)>=0;});if(vc)eng=vc.b;}}if(!eng){var exText=c.ex||'';var exMatch=exText.match(/^(to \w[\w\s\/]+?)[\.,]/);if(exMatch)eng=exMatch[1];}}}
+  var exLine=c.ex||'';
+  var engLine=eng?'<div style="font-size:14px;color:var(--b);margin-top:12px;font-weight:600;">'+eng+'</div>':'';
+  return engLine+(exLine?'<div class="fc-ex">'+exLine+'</div>':'');
+}
+var _fcMode='flip';
+function rnFC(){
+  if(sIdx>=sCards.length){showFDone();return;}
+  var c=sCards[sIdx],pct=Math.round(sIdx/sCards.length*100);
+  var mode=pickCardMode(c);_fcMode=mode;
+  var lvc={A1:'var(--a1l)',A2:'var(--a2l)',B1:'var(--b1l)',B2:'var(--b2l)',C1:'var(--c1l)'};
+  var lvt={A1:'var(--a1)',A2:'var(--a2)',B1:'var(--b1)',B2:'var(--b2)',C1:'var(--c1)'};
+  var h='<div style="display:flex;flex-direction:column;flex:1;min-height:0;">';
+  h+=fcHeader(c,pct);
+  if(mode==='flip'){
+    h+='<div class="fc-wrap" onclick="flipFC()" id="fcwrap"><div class="fc" id="fcard"><div class="fc-face"><div class="fc-cat">'+c.dk+'</div><div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';">'+c.lv+'</div><div class="fc-main">'+c.f+'</div><div class="fc-hint">tap to flip</div></div><div class="fc-face fc-bk"><div class="fc-cat">answer</div><div class="fc-main">'+c.b+'</div>'+fcEngHint(c)+'</div></div></div>';
+    h+=rateButtons();
+  } else if(mode==='type'){
+    // Type the answer mode — show the prompt, user types
+    var prompt,answer;
+    if(Math.random()>0.5&&c.dk!=='conj'){prompt=c.b;answer=c.f;} // EN→FR
+    else{prompt=c.f;answer=c.b;} // FR→EN
+    h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;">';
+    h+='<div style="font-size:9px;font-weight:700;color:var(--b);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Type the answer</div>';
+    h+='<div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';margin-bottom:12px;">'+c.lv+'</div>';
+    h+='<div style="font-family:Fraunces,serif;font-size:24px;color:var(--ink);margin-bottom:20px;line-height:1.3;">'+prompt+'</div>';
+    h+='<input id="fc-type-input" style="width:100%;max-width:320px;padding:12px 18px;border:2px solid var(--line);border-radius:100px;font-size:16px;text-align:center;font-family:inherit;outline:none;background:var(--paper);" placeholder="Your answer..." onkeypress="if(event.key===\'Enter\')checkTypeAnswer()" autocomplete="off" autocapitalize="off">';
+    h+='<div style="margin-top:12px;display:flex;gap:8px;"><button class="btn btn-primary" onclick="checkTypeAnswer()">Check</button><button class="btn btn-ghost" onclick="revealTypeAnswer()">Show answer</button></div>';
+    h+='<div id="fc-type-fb" style="margin-top:12px;display:none;padding:12px 16px;border-radius:var(--rsm);font-size:14px;width:100%;max-width:360px;"></div>';
+    h+='</div>';
+    h+='<input type="hidden" id="fc-type-ans" value="'+answer.replace(/"/g,'&quot;')+'">';
+    h+=rateButtons();
+  } else if(mode==='mc'){
+    // Multiple choice mode
+    var wrongs=getMCWrongs(c,3);
+    if(wrongs.length<3){_fcMode='flip';rnFC();return;} // fallback to flip if not enough options
+    var dir=Math.random()>0.5&&c.dk!=='conj'?'en2fr':'fr2en';
+    var question,correctAns,opts;
+    if(dir==='fr2en'){
+      question=c.f;correctAns=c.b;
+      opts=wrongs.map(function(w){return w.b;});
+    } else {
+      question=c.b;correctAns=c.f;
+      opts=wrongs.map(function(w){return w.f;});
+    }
+    var correctIdx=Math.floor(Math.random()*4);
+    opts.splice(correctIdx,0,correctAns);
+    h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;">';
+    h+='<div style="font-size:9px;font-weight:700;color:var(--p);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Choose the correct answer</div>';
+    h+='<div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';margin-bottom:12px;">'+c.lv+'</div>';
+    h+='<div style="font-family:Fraunces,serif;font-size:24px;color:var(--ink);margin-bottom:24px;line-height:1.3;">'+question+'</div>';
+    h+='<div style="width:100%;max-width:400px;">';
+    opts.forEach(function(o,i){
+      h+='<button class="q-opt" id="fc-mc-'+i+'" onclick="checkMCAnswer('+i+','+correctIdx+')" style="display:block;width:100%;text-align:left;margin-bottom:8px;">'+o+'</button>';
+    });
+    h+='</div>';
+    h+='<div id="fc-mc-fb" style="margin-top:8px;display:none;padding:10px 16px;border-radius:var(--rsm);font-size:13px;width:100%;max-width:400px;"></div>';
+    h+='</div>';
+    h+=rateButtons();
+  }
   h+='</div>';
   document.getElementById('flash-main').innerHTML=h;
   sFl=false;
+  if(mode==='type'){setTimeout(function(){var i=document.getElementById('fc-type-input');if(i)i.focus();},100);}
+}
+function checkTypeAnswer(){
+  var inp=document.getElementById('fc-type-input');if(!inp||inp.disabled)return;
+  var ans=document.getElementById('fc-type-ans').value;
+  var v=inp.value.trim();
+  var norm=function(s){return s.toLowerCase().replace(/[\s-]+/g,'').replace(/[éè]/g,'e').replace(/[àâ]/g,'a').replace(/[ùû]/g,'u').replace(/[ôö]/g,'o').replace(/[îï]/g,'i').replace(/ç/g,'c').replace(/['']/g,"'");};
+  var correct=norm(v)===norm(ans);
+  var fb=document.getElementById('fc-type-fb');
+  fb.style.display='block';
+  inp.disabled=true;
+  if(correct){
+    fb.style.background='var(--gl)';fb.style.color='#065F46';
+    fb.innerHTML='<b>Correct!</b> '+ans;
+    inp.style.borderColor='var(--g)';
+  } else {
+    fb.style.background='var(--rl)';fb.style.color='#991B1B';
+    fb.innerHTML='<b>Incorrect.</b> The answer is: <b>'+ans+'</b>'+(v?' — You wrote: '+v:'');
+    inp.style.borderColor='var(--r)';
+  }
+  // Show rating buttons
+  document.getElementById('frates').style.display='grid';sFl=true;
+}
+function revealTypeAnswer(){
+  var inp=document.getElementById('fc-type-input');if(!inp||inp.disabled)return;
+  var ans=document.getElementById('fc-type-ans').value;
+  var fb=document.getElementById('fc-type-fb');
+  fb.style.display='block';fb.style.background='var(--bl)';fb.style.color='var(--b)';
+  fb.innerHTML='Answer: <b>'+ans+'</b>';
+  inp.disabled=true;inp.value=ans;
+  document.getElementById('frates').style.display='grid';sFl=true;
+}
+function checkMCAnswer(picked,correct){
+  if(document.getElementById('fc-mc-'+picked).disabled)return;
+  var ok=picked===correct;
+  document.getElementById('fc-mc-'+picked).classList.add(ok?'ok':'no');
+  if(!ok)document.getElementById('fc-mc-'+correct).classList.add('ok');
+  for(var i=0;i<4;i++){var b=document.getElementById('fc-mc-'+i);if(b)b.disabled=true;}
+  var fb=document.getElementById('fc-mc-fb');
+  fb.style.display='block';
+  fb.style.background=ok?'var(--gl)':'var(--rl)';
+  fb.style.color=ok?'#065F46':'#991B1B';
+  var c=sCards[sIdx];
+  fb.innerHTML=(ok?'Correct! ':'Incorrect. ')+c.f+' = '+c.b;
+  document.getElementById('frates').style.display='grid';sFl=true;
 }
 function flipFC(){var fc=document.getElementById('fcard');if(!fc)return;fc.classList.toggle('flip');sFl=!sFl;if(sFl){document.getElementById('frates').style.display='grid';}}
 function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;dailyCardCount++;saveDailyCount();logToHistory();rnFC();rfFlashStats();recordActivity();updateDailyCounter();}
@@ -15444,7 +15533,7 @@ document.addEventListener('keydown',function(e){
 
 /* ═══ FLASHCARD MODE SWITCH ═══ */
 function setFCMode(mode){
-  ['study','browse','create','saved','practice','mastered','log'].forEach(function(m){
+  ['study','browse','create','saved','mastered','log'].forEach(function(m){
     var el=document.getElementById('fc-'+m+'-mode');if(el)el.style.display=m===mode?'':'none';
     var btn=document.getElementById('fcm-'+m);if(btn)btn.classList.toggle('act',m===mode);
   });
