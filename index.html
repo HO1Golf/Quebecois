@@ -16100,18 +16100,26 @@ function ghGetHeaders(){
 }
 
 function ghBuildPayload(){
+  var safeCards=[];
+  try{
+    safeCards=(cards||[]).filter(function(c){return c&&c.id&&(c.reps>0||c.state!=='new');}).map(function(c){return{id:c.id,interval:c.interval||0,ease:c.ease||2.5,reps:c.reps||0,due:c.due||td(),state:c.state||'new',knownCount:c.knownCount||0};});
+  }catch(e){console.error('ghBuildPayload cards error:',e);}
+  var safeSaved=[];
+  try{safeSaved=(savedWords||[]).filter(function(w){return w&&w.fr;});}catch(e){}
+  var safeCustom=[];
+  try{safeCustom=(customCards||[]).filter(function(w){return w&&w.id;});}catch(e){}
   return {
     version:'qbc-sync-v1',
     synced:new Date().toISOString(),
-    xp:xp,totalH:totalH,lessDone:lessDone,
-    done:Array.from(doneLes),
-    unlocked:Array.from(unlocked),
-    savedWords:savedWords,
-    customCards:customCards,
+    xp:xp||0,totalH:totalH||0,lessDone:lessDone||0,
+    done:Array.from(doneLes||[]),
+    unlocked:Array.from(unlocked||[]),
+    savedWords:safeSaved,
+    customCards:safeCustom,
     streak:JSON.parse(localStorage.getItem('qbc_streak')||'{}'),
     cardLog:JSON.parse(localStorage.getItem('qbc_card_log')||'[]'),
     dailyCount:JSON.parse(localStorage.getItem('qbc_daily')||'{}'),
-    cardProgress:cards.filter(function(c){return c.reps>0||c.state!=='new';}).map(function(c){return{id:c.id,interval:c.interval,ease:c.ease,reps:c.reps,due:c.due,state:c.state,knownCount:c.knownCount||0};})
+    cardProgress:safeCards
   };
 }
 
@@ -16128,22 +16136,24 @@ function _ghApplyInner(data){
   lessDone=doneLes.size; // recalculate from actual set
   (data.unlocked||[]).forEach(function(k){unlocked.add(k);});
   // Merge saved words (dedupe by french word)
-  if(data.savedWords){
+  if(data.savedWords&&Array.isArray(data.savedWords)){
     data.savedWords.forEach(function(w){
-      if(!savedWords.find(function(s){return s.fr===w.fr;})) savedWords.push(w);
+      if(!w||!w.fr) return;
+      if(!savedWords.find(function(s){return s&&s.fr===w.fr;})) savedWords.push(w);
     });
   }
   // Merge custom cards
-  if(data.customCards){
+  if(data.customCards&&Array.isArray(data.customCards)){
     data.customCards.forEach(function(w){
-      if(!customCards.find(function(s){return s.id===w.id;})) customCards.push(w);
+      if(!w||!w.id) return;
+      if(!customCards.find(function(s){return s&&s.id===w.id;})) customCards.push(w);
     });
   }
   // For card progress, take whichever has more reps (more practice)
   if(data.cardProgress&&Array.isArray(data.cardProgress)){
     data.cardProgress.forEach(function(sc){
       if(!sc||!sc.id) return;
-      var c=cards.find(function(x){return x.id===sc.id;});
+      var c=cards.find(function(x){return x&&x.id===sc.id;});
       if(c && sc.reps>(c.reps||0)){c.interval=sc.interval;c.ease=sc.ease;c.reps=sc.reps;c.due=sc.due;c.state=sc.state;c.knownCount=sc.knownCount||0;}
     });
   }
