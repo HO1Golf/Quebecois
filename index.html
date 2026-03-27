@@ -15027,7 +15027,13 @@ function flipFC(){var fc=document.getElementById('fcard');if(!fc)return;fc.class
 function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;dailyCardCount++;saveDailyCount();logToHistory();rnFC();rfFlashStats();recordActivity();updateDailyCounter();}
 function showFDone(){
   var pct=Math.round(sCor/sCards.length*100);
-  document.getElementById('flash-main').innerHTML='<div class="empty"><h3>Session complete</h3><p>'+sCards.length+' cards reviewed. '+sCor+' correct ('+pct+'%). Next reviews scheduled.</p><button class="btn btn-primary" onclick="startStudy()" style="margin-top:8px;">Study again</button></div>';
+  var dueNow=getDue();var newLeft=getNewToday();var more=dueNow+newLeft;
+  var msg=sCards.length+' cards reviewed. '+sCor+' correct ('+pct+'%).';
+  if(more>0){msg+=' '+more+' more cards waiting.';
+    document.getElementById('flash-main').innerHTML='<div class="empty"><h3>Session complete</h3><p>'+msg+'</p><button class="btn btn-primary" onclick="startStudy()" style="margin-top:8px;">Continue ('+more+' cards)</button></div>';
+  } else {msg+=' Cards will become due again based on your difficulty ratings.';
+    document.getElementById('flash-main').innerHTML='<div class="empty"><h3>All done for now</h3><p>'+msg+'</p><button class="btn btn-ghost" onclick="goView(\'dashboard\')" style="margin-top:8px;">Back to dashboard</button></div>';
+  }
 }
 
 /* ═══ PRACTICE TOOLS ═══ */
