@@ -35,7 +35,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 ::selection{background:var(--bl);color:var(--b);}
 
 /* ═══ APP SHELL ═══ */
-.app{display:flex;height:100vh;height:100dvh;overflow:hidden;}
+.app{display:flex;height:100vh;height:100dvh;overflow:hidden;position:relative;}
 
 /* Sidebar Nav */
 .nav{width:260px;background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
@@ -63,7 +63,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .nu-done .nu-dot{background:var(--g);}
 
 /* Main content */
-.main{flex:1;overflow-y:auto;background:var(--cream);-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0);}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--cream);-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0);}
 .page-view{display:none;}.page-view.active{display:block;}
 
 /* Stats bar */
@@ -855,13 +855,19 @@ function toggleMobNav(){var nav=document.getElementById('sidenav');nav.classList
 // Swipe gesture to open/close sidebar
 (function(){
   var touchStartX=0,touchStartY=0,touchStartTime=0,swiping=false;
-  var EDGE_WIDTH=30,MIN_SWIPE=60,MAX_Y=80,MAX_TIME=400;
+  var EDGE_WIDTH=40,MIN_SWIPE=50,MAX_Y=80,MAX_TIME=500;
   document.addEventListener('touchstart',function(e){
     var t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartTime=Date.now();swiping=false;
     var navOpen=document.getElementById('sidenav').classList.contains('open');
     if(!navOpen&&touchStartX<=EDGE_WIDTH)swiping=true;
     if(navOpen)swiping=true;
   },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!swiping)return;
+    var t=e.touches[0];var dx=t.clientX-touchStartX;var dy=Math.abs(t.clientY-touchStartY);
+    // If horizontal swipe is dominant, prevent browser gestures (iOS back swipe, scroll)
+    if(Math.abs(dx)>10&&Math.abs(dx)>dy){e.preventDefault();}
+  },{passive:false});
   document.addEventListener('touchend',function(e){
     if(!swiping)return;
     var t=e.changedTouches[0];var dx=t.clientX-touchStartX;var dy=Math.abs(t.clientY-touchStartY);var dt=Date.now()-touchStartTime;
