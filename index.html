@@ -755,7 +755,6 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
     <button class="fc-mode act" id="fcm-study" onclick="setFCMode('study')">Study</button>
     <button class="fc-mode" id="fcm-browse" onclick="setFCMode('browse')">Browse</button>
     <button class="fc-mode" id="fcm-create" onclick="setFCMode('create')">Create</button>
-    <button class="fc-mode" id="fcm-saved" onclick="setFCMode('saved')">Saved Words</button>
     <button class="fc-mode" id="fcm-practice" onclick="setFCMode('practice')">Practice</button>
     <button class="fc-mode" id="fcm-mastered" onclick="setFCMode('mastered')">Mastered</button>
     <button class="fc-mode" id="fcm-log" onclick="setFCMode('log')">Activity</button>
@@ -14523,7 +14522,7 @@ function buildDash(){
     h+='<div class="lc-head">';
     h+='<div class="prog-ring"><svg width="52" height="52"><circle cx="26" cy="26" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="4"/><circle cx="26" cy="26" r="'+r+'" fill="none" stroke="'+hexMap[lv.id]+'" stroke-width="4" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'" stroke-linecap="round"/></svg><div class="prog-ring-text" style="color:'+hexMap[lv.id]+';">'+pct+'%</div></div>';
     h+='<div><div class="lc-title">'+lv.id+' · '+lv.name+'</div><div class="lc-desc">'+descMap[lv.id]+'</div></div></div>';
-    h+='<div class="lc-info"><div><strong>'+lv.units.length+'</strong> units</div><div><strong>'+tL+'</strong> lessons</div><div><strong>'+dL+'</strong> completed</div><div>'+lv.hrs+'</div></div>';
+    h+='<div class="lc-info"><div><strong>'+lv.units.length+'</strong> units</div><div><strong>'+tL+'</strong> lessons</div><div><strong>'+dL+'</strong> completed</div></div>';
     h+='<div class="lc-expand"><div class="lc-units">';
     lv.units.forEach(function(u,uIdx){
       var ui=u.i,has=!!LD[ui+'-0'];
@@ -14600,16 +14599,11 @@ function oL(u,i){
   }
   var utag=getUnitTag(u);document.getElementById('lcont').innerHTML='<div class="breadcrumb"><a onclick="goView(\'dashboard\')">Dashboard</a><span class="bc-sep">/</span><span>'+utag+'</span></div><div class="les-tag">'+utag+'</div><div class="les-h">'+d.title+(d.em?' <em>'+d.em+'</em>':'')+'</div><p class="les-intro">'+d.intro+'</p>'+html+'<div class="les-nav">'+prev+'<button class="btn btn-primary btn-next-locked" id="lesNextBtn" onclick="stQ(\''+k+'\')">Next →</button>'+nxt+'</div>';
   goView('lesson');setProg(((i+1)/tot)*100,d.tag);aHrs(d.hrs);sv();buildNav();recordActivity();
-  // Auto-save all vocab words to flashcards when lesson is opened
-  var autoSaved=0;
+  // Silently auto-save vocab words to flashcards
   document.querySelectorAll('#lcont .vfr').forEach(function(el){
     var w=el.textContent.trim();var ve=el.parentElement.querySelector('.ven');var en=ve?ve.textContent.trim():'';
-    if(w&&en){
-      if(!savedWords.find(function(x){return x.fr===w;})){saveWord(w,en,true);autoSaved++;}
-      var b=document.createElement('span');b.className='save-w saved';b.textContent='✓ Saved';el.appendChild(b);
-    }
+    if(w&&en&&!savedWords.find(function(x){return x.fr===w;})){saveWord(w,en,true);}
   });
-  if(autoSaved>0){toast('',autoSaved+' word'+(autoSaved>1?'s':'')+' added to your flashcards');}
   // Make exercise blanks interactive
   makeExercisesInteractive();
   // Unlock Next button on scroll to bottom
@@ -14799,14 +14793,14 @@ function rateCard(c,r){
   if(r>=3)c.reps++;
   // Track Known (3w) selections for mastery
   if(!c.knownCount)c.knownCount=0;
-  if(r===6){c.knownCount++;if(c.knownCount>=4){c.state='mastered';c.due='9999-12-31';sv();logCardReview();return;}}
+  if(r===6){c.knownCount++;if(c.knownCount>=4){c.state='mastered';c.due='9999-12-31';sv();return;}}
   else if(r<4){c.knownCount=0;} // reset if you struggle
   c.state=r<3?'learning':'review';
   var n=new Date();
   if(c.interval===0){n.setHours(n.getHours()+(r===0?0.5:r===1?1:3));}
   else{n.setDate(n.getDate()+c.interval);}
   c.due=n.toISOString().slice(0,10);
-  sv();logCardReview();
+  sv();
 }
 /* ═══ PROGRESSIVE CARD UNLOCK ═══ */
 function getUnlockedLevels(){
@@ -14867,12 +14861,15 @@ function logCardReview(){saveDailyCount();logToHistory();}
 function logToHistory(){try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');var today=td();var last=h.length?h[h.length-1]:null;if(last&&last.date===today){last.count=dailyCardCount;last.mastered=getMastered();}else{h.push({date:today,count:dailyCardCount,mastered:getMastered()});}if(h.length>365)h=h.slice(-365);localStorage.setItem('qbc_card_log',JSON.stringify(h));}catch(e){}}
 function updateDailyCounter(){var el=document.getElementById('fc-daily');if(el)el.textContent=dailyCardCount;var el2=document.getElementById('fc-total-reviewed');if(el2){try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');var total=h.reduce(function(s,d){return s+d.count;},0);el2.textContent=total;}catch(e){}}}
 function startStudy(){
-  sCards=avail(sDk).sort(function(){return Math.random()-.5;}).slice(0,20);
+  var all=avail(sDk).sort(function(){return Math.random()-.5;});
+  // Start with up to 20, but show all due cards if fewer than 20
+  var limit=Math.min(Math.max(20,getDue()),all.length);
+  sCards=all.slice(0,limit);
   if(!sCards.length){
     var locked=getLockedCount();var lvls=getUnlockedLevels();
     var lvlStr=Array.from(lvls).join(', ');
-    var msg=locked>0?'<p style="font-size:12px;color:var(--ink4);margin-top:8px;">🔒 '+locked+' cards locked at higher levels. Complete more lessons to unlock A2, B1, B2, C1 cards.</p>':'';
-    document.getElementById('flash-main').innerHTML='<div class="empty"><div class="empty-ico">🌟</div><h3>All caught up!</h3><p>No cards due right now. Complete more lessons to unlock new cards, or check back later for reviews.</p><p style="font-size:12px;color:var(--b);margin-bottom:8px;">Unlocked levels: <b>'+lvlStr+'</b></p>'+msg+'<button class="btn btn-primary" onclick="goView(\'dashboard\')" style="margin-top:12px;">Go to lessons →</button></div>';return;}
+    var msg=locked>0?'<p style="font-size:12px;color:var(--ink4);margin-top:8px;">'+locked+' cards locked at higher levels. Complete more lessons to unlock.</p>':'';
+    document.getElementById('flash-main').innerHTML='<div class="empty"><h3>All caught up!</h3><p>No cards due right now. Complete more lessons to unlock new cards, or check back later for reviews.</p><p style="font-size:12px;color:var(--b);margin-bottom:8px;">Unlocked levels: <b>'+lvlStr+'</b></p>'+msg+'<button class="btn btn-primary" onclick="goView(\'dashboard\')" style="margin-top:12px;">Go to lessons</button></div>';return;}
   sIdx=0;sFl=false;sCor=0;rnFC();
 }
 function rnFC(){
@@ -14899,10 +14896,10 @@ function rnFC(){
   sFl=false;
 }
 function flipFC(){var fc=document.getElementById('fcard');if(!fc)return;fc.classList.toggle('flip');sFl=!sFl;if(sFl){document.getElementById('frates').style.display='grid';var kh=document.getElementById('kbd-hints');if(kh)kh.style.display='flex';}}
-function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;dailyCardCount++;rnFC();rfFlashStats();recordActivity();updateDailyCounter();}
+function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;dailyCardCount++;saveDailyCount();logToHistory();rnFC();rfFlashStats();recordActivity();updateDailyCounter();}
 function showFDone(){
   var pct=Math.round(sCor/sCards.length*100);
-  document.getElementById('flash-main').innerHTML='<div class="empty"><div class="empty-ico">'+(pct>=80?'🌟':pct>=60?'👍':'💪')+'</div><h3>Session complete!</h3><p>Reviewed '+sCards.length+' cards. '+sCor+' correct. The SRS algorithm has scheduled your next reviews.</p><button class="btn btn-primary" onclick="startStudy()" style="margin-top:8px;">Study again →</button></div>';
+  document.getElementById('flash-main').innerHTML='<div class="empty"><h3>Session complete</h3><p>'+sCards.length+' cards reviewed. '+sCor+' correct ('+pct+'%). Next reviews scheduled.</p><button class="btn btn-primary" onclick="startStudy()" style="margin-top:8px;">Study again</button></div>';
 }
 
 /* ═══ PRACTICE TOOLS ═══ */
