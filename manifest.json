@@ -1,0 +1,9 @@
+{
+  "name": "Quebecois French",
+  "short_name": "Quebecois",
+  "start_url": "/Quebecois/",
+  "display": "standalone",
+  "background_color": "#FAFBFD",
+  "theme_color": "#0B1222",
+  "orientation": "portrait"
+}

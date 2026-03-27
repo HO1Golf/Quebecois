@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0B1222">
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -34,7 +35,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 ::selection{background:var(--bl);color:var(--b);}
 
 /* ═══ APP SHELL ═══ */
-.app{display:flex;height:100vh;overflow:hidden;}
+.app{display:flex;height:100vh;height:100dvh;overflow:hidden;}
 
 /* Sidebar Nav */
 .nav{width:260px;background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
@@ -62,11 +63,11 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .nu-done .nu-dot{background:var(--g);}
 
 /* Main content */
-.main{flex:1;overflow-y:auto;background:var(--cream);-webkit-overflow-scrolling:touch;}
+.main{flex:1;overflow-y:auto;background:var(--cream);-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,0);}
 .page-view{display:none;}.page-view.active{display:block;}
 
 /* Stats bar */
-.stats-bar{position:sticky;top:0;z-index:20;background:rgba(250,251,253,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:0 24px;padding-top:env(safe-area-inset-top,0);height:44px;display:flex;align-items:center;gap:12px;}
+.stats-bar{position:sticky;top:0;z-index:20;background:rgba(250,251,253,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:0 24px;padding-top:env(safe-area-inset-top,0);min-height:calc(44px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;}
 .stats-bar .sb-progress{flex:1;max-width:280px;}
 .sb-prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--ink4);margin-bottom:3px;}
 .sb-prog-track{height:4px;background:var(--line);border-radius:100px;overflow:hidden;}
@@ -335,16 +336,16 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .bct-new{background:var(--bl);color:var(--b);}.bct-lrn{background:var(--ol);color:var(--o);}.bct-rev{background:var(--gl);color:var(--g);}.bct-due{background:var(--rl);color:var(--r);}
 
 /* ═══ MOBILE MENU ═══ */
-.mob-toggle{display:none;background:none;border:none;font-size:22px;padding:4px 8px;color:var(--ink);position:absolute;left:12px;top:11px;z-index:30;}
+.mob-toggle{display:none;background:none;border:none;font-size:22px;padding:4px 8px;color:var(--ink);z-index:30;flex-shrink:0;}
 .mob-overlay{display:none;position:fixed;inset:0;background:rgba(11,18,34,.4);z-index:40;}
 
 /* ═══ TABLET (≤840px) ═══ */
 @media(max-width:840px){
-  .nav{position:fixed;left:-280px;top:0;bottom:0;z-index:50;transition:left .2s ease;box-shadow:none;width:260px;}
+  .nav{position:fixed;left:-280px;top:0;bottom:0;z-index:50;transition:left .2s ease;box-shadow:none;width:260px;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);}
   .nav.open{left:0;box-shadow:8px 0 32px rgba(0,0,0,.15);}
-  .mob-toggle{display:block;}
+  .mob-toggle{display:flex;}
   .mob-overlay.show{display:block;}
-  .stats-bar{padding-left:52px;height:44px;}
+  .stats-bar{padding-left:12px;min-height:calc(44px + env(safe-area-inset-top,0px));}
   .sb-stat{font-size:11px;padding:3px 8px;}
   .dashboard,.lesson-view,.quiz-view,.flash-view,.tools-view,.ref-view{padding:16px;}
   .lc-units{grid-template-columns:1fr 1fr;}
@@ -364,7 +365,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 @media(max-width:430px){
   /* Global spacing */
   .dashboard,.lesson-view,.quiz-view,.flash-view,.tools-view,.ref-view{padding:12px 14px;}
-  .stats-bar{height:40px;padding-left:48px;padding-right:12px;gap:8px;}
+  .stats-bar{min-height:calc(40px + env(safe-area-inset-top,0px));padding-left:8px;padding-right:12px;gap:8px;}
   .sb-stat{font-size:10px;padding:2px 6px;}
   .sb-prog-label{font-size:9px;}
 
@@ -761,7 +762,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   <div id="fc-study-mode">
     <div class="flash-stats" style="margin-top:6px;">
     <div class="fstat"><div class="fstat-v" id="fc-assigned" style="color:var(--b);">0</div><div class="fstat-l">Assigned</div></div>
-    <div class="fstat"><div class="fstat-v" id="fc-daily" style="color:var(--g);">0</div><div class="fstat-l">Completed</div></div>
+    <div class="fstat"><div class="fstat-v" id="fc-daily" style="color:var(--g);">0</div><div class="fstat-l">Attempted</div></div>
     <div class="fstat"><div class="fstat-v" id="fc-circulation">0</div><div class="fstat-l">Cards</div></div>
   </div>
   <div class="flash-tabs" id="flash-tabs">
@@ -14787,9 +14788,8 @@ function rateCard(c,r){
   else if(r<4){c.knownCount=0;} // reset if you struggle
   c.state=r<3?'learning':'review';
   var n=new Date();
-  if(c.interval===0){n.setHours(n.getHours()+(r===0?0.5:r===1?1:3));}
-  else{n.setDate(n.getDate()+c.interval);}
-  c.due=n.toISOString().slice(0,10);
+  if(c.interval===0){n.setHours(n.getHours()+(r===0?0.5:r===1?1:3));c.due=n.toISOString();}
+  else{n.setDate(n.getDate()+c.interval);c.due=n.toISOString().slice(0,10);}
   sv();
 }
 /* ═══ PROGRESSIVE CARD UNLOCK ═══ */
@@ -14823,17 +14823,26 @@ function cardAvailable(c){
 var _ulCache=null,_ulTs=0;
 function getUL(){var now=Date.now();if(_ulCache&&now-_ulTs<2000)return _ulCache;_ulCache=getUnlockedLevels();_ulTs=now;return _ulCache;}
 
-function avail(dk){var t=td(),ul=getUL();return cards.filter(function(c){if(c.state==='mastered')return false;if(!ul.has(c.lv))return false;if(dk&&dk!=='all'&&c.dk!==dk)return false;return c.due<=t||c.state==='new';});}
-function getDue(){var t=td(),ul=getUL();return cards.filter(function(c){return c.state!=='mastered'&&ul.has(c.lv)&&c.due<=t&&c.state!=='new';}).length;}
+function avail(dk){var ul=getUL();return cards.filter(function(c){if(c.state==='mastered')return false;if(!ul.has(c.lv))return false;if(dk&&dk!=='all'&&c.dk!==dk)return false;return isDue(c)||c.state==='new';});}
+function isDue(c){
+  if(!c.due)return true;
+  // If due is a full ISO timestamp (same-day interval), compare against now
+  if(c.due.length>10){return new Date(c.due)<=new Date();}
+  // Otherwise it's a date string — compare against today
+  return c.due<=td();
+}
+function getDue(){var ul=getUL();return cards.filter(function(c){return c.state!=='mastered'&&c.state!=='new'&&ul.has(c.lv)&&isDue(c);}).length;}
 function getNew(){var ul=getUL();return cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';}).length;}
 function getLearned(){return cards.filter(function(c){return c.reps>0&&c.state!=='mastered';}).length;}
 function getMastered(){return cards.filter(function(c){return c.state==='mastered';}).length;}
 function getLockedCount(){var ul=getUL();return cards.filter(function(c){return!ul.has(c.lv);}).length;}
 var NEW_CARDS_PER_DAY=25;
 function getNewToday(){
-  // Limit new cards to NEW_CARDS_PER_DAY per day
-  var ul=getUL();var newCards=cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';});
-  return Math.min(newCards.length,NEW_CARDS_PER_DAY);
+  var ul=getUL();
+  var alreadyIntroduced=getNewIntroducedToday();
+  var remaining=Math.max(0,NEW_CARDS_PER_DAY-alreadyIntroduced);
+  var availNew=cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';}).length;
+  return Math.min(availNew,remaining);
 }
 function getAssigned(){return getDue()+getNewToday();}
 function getInCirculation(){return cards.filter(function(c){return c.state!=='mastered'&&c.state!=='new';}).length;}
@@ -14859,7 +14868,7 @@ function getNewIntroducedToday(){
 function startStudy(){
   var t=td(),ul=getUL();
   // Get due reviews (cards already in circulation that need review)
-  var dueCards=cards.filter(function(c){return c.state!=='mastered'&&c.state!=='new'&&ul.has(c.lv)&&c.due<=t&&(sDk==='all'||c.dk===sDk);});
+  var dueCards=cards.filter(function(c){return c.state!=='mastered'&&c.state!=='new'&&ul.has(c.lv)&&isDue(c)&&(sDk==='all'||c.dk===sDk);});
   // Get new cards - limit based on how many were already introduced today
   var alreadyIntroduced=getNewIntroducedToday();
   var newLimit=Math.max(0,NEW_CARDS_PER_DAY-alreadyIntroduced);
@@ -15742,52 +15751,56 @@ function showActivityLog(){
   var daysActive=log.length;
   var avg=daysActive?Math.round(totalReviews/daysActive):0;
   var best=log.length?Math.max.apply(null,log.map(function(d){return d.count;})):0;
-  // Maturity distribution
-  var mature=cards.filter(function(c){return ul.has(c.lv)&&c.interval>=21;}).length;
-  var young=cards.filter(function(c){return ul.has(c.lv)&&c.state==='review'&&c.interval<21;}).length;
   // Build HTML
   var html='';
   // Streak banner
   html+='<div style="background:linear-gradient(135deg,var(--b),var(--p));border-radius:16px;padding:20px;margin-bottom:20px;color:#fff;display:flex;align-items:center;gap:16px;">';
   html+='<div style="font-size:36px;">'+streakN+'</div>';
   html+='<div><div style="font-size:14px;font-weight:700;">Day Streak</div><div style="font-size:11px;opacity:.8;">'+daysActive+' total days active</div></div>';
-  html+='<div style="margin-left:auto;text-align:right;"><div style="font-size:20px;font-weight:800;">'+totalReviews+'</div><div style="font-size:10px;opacity:.8;">lifetime reviews</div></div>';
+  html+='<div style="margin-left:auto;text-align:right;"><div style="font-size:20px;font-weight:800;">'+totalReviews+'</div><div style="font-size:10px;opacity:.8;">lifetime attempts</div></div>';
+  html+='</div>';
+  // Today's summary
+  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Today</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">';
+  var todayItems=[
+    {n:dueNow+getNewToday(),l:'Assigned',c:'var(--b)'},
+    {n:dailyCardCount,l:'Attempted',c:'var(--warn)'},
+    {n:learning,l:'In Rotation',c:'var(--g)'}
+  ];
+  todayItems.forEach(function(it){
+    html+='<div style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:center;"><div style="font-size:24px;font-weight:800;color:'+it.c+';">'+it.n+'</div><div style="font-size:10px;color:var(--ink4);margin-top:2px;">'+it.l+'</div></div>';
+  });
   html+='</div>';
   // Overview grid
-  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Overview</div>';
+  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Overall Progress</div>';
   html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;">';
   var ovItems=[
-    {n:totalCards,l:'Total Cards',c:'var(--b)'},
     {n:learning,l:'In Rotation',c:'var(--warn)'},
     {n:mastered,l:'Mastered',c:'var(--g)'},
-    {n:newCards,l:'Unseen',c:'var(--ink4)'},
-    {n:dueNow,l:'Due Now',c:'var(--r)'},
-    {n:mature,l:'Mature (21d+)',c:'var(--p)'},
+    {n:newCards,l:'Not Yet Seen',c:'var(--ink4)'},
     {n:avg,l:'Daily Average',c:'var(--b)'},
-    {n:best,l:'Best Day',c:'var(--warn)'}
+    {n:best,l:'Best Day',c:'var(--p)'},
+    {n:daysActive,l:'Days Active',c:'var(--warn)'}
   ];
   ovItems.forEach(function(it){
     html+='<div style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;border-left:3px solid '+it.c+';"><div style="font-size:22px;font-weight:800;color:var(--ink);">'+it.n+'</div><div style="font-size:10px;color:var(--ink4);margin-top:2px;">'+it.l+'</div></div>';
   });
   html+='</div>';
-  // Card maturity breakdown bar
+  // Card status breakdown bar
   html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;">Card Status</div>';
   var total=totalCards||1;
   var pNew=Math.round(newCards/total*100);
-  var pYoung=Math.round(young/total*100);
-  var pMature=Math.round(mature/total*100);
+  var pLearn=Math.round(learning/total*100);
   var pMaster=Math.round(mastered/total*100);
   html+='<div style="display:flex;height:24px;border-radius:12px;overflow:hidden;margin-bottom:6px;background:var(--line);">';
   if(pMaster>0)html+='<div style="width:'+pMaster+'%;background:var(--g);transition:width .3s;" title="Mastered '+pMaster+'%"></div>';
-  if(pMature>0)html+='<div style="width:'+pMature+'%;background:var(--p);transition:width .3s;" title="Mature '+pMature+'%"></div>';
-  if(pYoung>0)html+='<div style="width:'+pYoung+'%;background:var(--warn);transition:width .3s;" title="Learning '+pYoung+'%"></div>';
-  if(pNew>0)html+='<div style="width:'+pNew+'%;background:var(--ink5);transition:width .3s;" title="Unseen '+pNew+'%"></div>';
+  if(pLearn>0)html+='<div style="width:'+pLearn+'%;background:var(--warn);transition:width .3s;" title="In Rotation '+pLearn+'%"></div>';
+  if(pNew>0)html+='<div style="width:'+pNew+'%;background:var(--ink5);transition:width .3s;" title="Not Yet Seen '+pNew+'%"></div>';
   html+='</div>';
   html+='<div style="display:flex;gap:12px;font-size:9px;color:var(--ink4);margin-bottom:24px;flex-wrap:wrap;">';
   html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g);margin-right:3px;"></span>Mastered '+pMaster+'%</span>';
-  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--p);margin-right:3px;"></span>Mature '+pMature+'%</span>';
-  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:3px;"></span>Learning '+pYoung+'%</span>';
-  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink5);margin-right:3px;"></span>Unseen '+pNew+'%</span>';
+  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:3px;"></span>In Rotation '+pLearn+'%</span>';
+  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink5);margin-right:3px;"></span>Not Yet Seen '+pNew+'%</span>';
   html+='</div>';
   // Category breakdown
   html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">By Category</div>';
