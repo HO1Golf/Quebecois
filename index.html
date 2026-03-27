@@ -14875,6 +14875,8 @@ function rfFlashStats(){
   var el3=document.getElementById('fc-circulation');if(el3)el3.textContent=getInCirculation();
   updateDailyCounter();
 }
+// Auto-refresh stats every 60s so due cards appear when their interval elapses
+setInterval(function(){if(currentView==='flash')rfFlashStats();},60000);
 var sDk='all',sCards=[],sIdx=0,sFl=false,sCor=0,dailyCardCount=0;
 function setDk(d,el){sDk=d;document.querySelectorAll('.ftab').forEach(function(x){x.classList.remove('act');});el.classList.add('act');startStudy();}
 // Daily card review tracking
