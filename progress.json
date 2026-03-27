@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T00:54:28.588Z",
+  "synced": "2026-03-27T00:57:23.987Z",
   "xp": 0,
   "totalH": 0,
   "lessDone": 0,
@@ -10,6 +10,11 @@
   ],
   "savedWords": [],
   "customCards": [],
-  "streak": {},
+  "streak": {
+    "days": [
+      "2026-03-27"
+    ],
+    "streak": 1
+  },
   "cardProgress": []
 }
