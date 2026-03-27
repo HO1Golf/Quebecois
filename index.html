@@ -244,11 +244,11 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .fc-ex{font-size:13px;color:var(--ink3);text-align:center;margin-top:14px;font-style:italic;line-height:1.5;max-width:380px;}
 /* 7 rating buttons pinned at bottom */
 .f-rates{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;flex-shrink:0;margin-top:auto;padding:12px 0 env(safe-area-inset-bottom,0);}
-.f-rate{padding:16px 2px;border-radius:12px;border:none;font-family:inherit;font-size:10px;font-weight:700;transition:all .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,.04);position:relative;}
+.f-rate{padding:16px 2px;border-radius:12px;border:none;font-family:inherit;font-size:10px;font-weight:700;transition:all .1s;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,.04);position:relative;}
 .f-rate:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.08);}
 .f-rate:active{transform:scale(.93);}
 .r-0{background:#FEE2E2;color:#DC2626;}.r-1{background:#FEF3C7;color:#D97706;}.r-2{background:#FFF7ED;color:#EA580C;}.r-3{background:#ECFDF5;color:#059669;}.r-4{background:#DBEAFE;color:#1D4ED8;}.r-5{background:#EDE9FE;color:#7C3AED;}.r-6{background:#F0FDF4;color:#15803D;}
-.f-rl{position:absolute;top:3px;right:5px;font-size:8px;font-weight:600;opacity:.45;white-space:nowrap;letter-spacing:-.2px;}.f-ri{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;}
+.f-rl{font-size:14px;font-weight:800;white-space:nowrap;letter-spacing:-.3px;}.f-ri{font-size:7px;opacity:.5;text-transform:uppercase;letter-spacing:.03em;}.f-rk{position:absolute;top:3px;right:5px;font-size:8px;font-weight:600;opacity:.35;}
 .kbd-hints{display:flex;justify-content:center;gap:8px;margin-top:4px;font-size:9px;color:var(--ink5);flex-shrink:0;}
 .kbd{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border:1px solid var(--line);border-radius:3px;font-size:8px;font-weight:700;color:var(--ink4);background:var(--cream);margin-right:2px;padding:0 3px;}
 
@@ -446,7 +446,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   .fc-lvbadge{margin-bottom:12px;}
   .f-rates{gap:4px;padding:8px 0 env(safe-area-inset-bottom,8px);}
   .f-rate{padding:14px 0;border-radius:10px;}
-  .f-rl{font-size:7px;top:2px;right:4px;}.f-ri{font-size:10px;}
+  .f-rl{font-size:14px;}.f-ri{font-size:7px;}.f-rk{font-size:7px;top:2px;right:4px;}
   .kbd-hints{display:none;}
 
   /* Checkpoints */
@@ -14911,20 +14911,20 @@ function rnFC(){
   h+='<div style="height:2px;background:var(--line);border-radius:100px;overflow:hidden;margin-bottom:6px;flex-shrink:0;"><div style="height:100%;background:linear-gradient(90deg,var(--b),var(--p));border-radius:100px;width:'+pct+'%;transition:width .3s;"></div></div>';
   h+='<div class="fc-wrap" onclick="flipFC()" id="fcwrap"><div class="fc" id="fcard"><div class="fc-face"><div class="fc-cat">'+c.dk+'</div><div class="fc-lvbadge" style="background:'+(lvc[c.lv]||'var(--cream)')+';color:'+(lvt[c.lv]||'var(--ink4)')+';">'+c.lv+'</div><div class="fc-main">'+c.f+'</div><div class="fc-hint">tap to flip</div></div><div class="fc-face fc-bk"><div class="fc-cat">answer</div><div class="fc-main">'+c.b+'</div>'+(function(){var eng='';if(c.dk==='conj'){var parts=c.f.split(' — ');if(parts[0]){var vb=parts[0].trim().toLowerCase().replace(/^se\s+/,'');if(CONJ_DB[vb])eng=CONJ_DB[vb].en;if(!eng){for(var k in CONJ_DB){if(vb===k||vb.indexOf(k)===0||k.indexOf(vb)===0){eng=CONJ_DB[k].en;break;}}}if(!eng){var vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase()===vb;});if(vc)eng=vc.b;if(!vc){vc=cards.find(function(x){return x.dk==='vocab'&&x.f.toLowerCase().indexOf(vb)>=0;});if(vc)eng=vc.b;}}if(!eng){var exText=c.ex||'';var exMatch=exText.match(/^(to \w[\w\s/]+?)[\.,]/);if(exMatch)eng=exMatch[1];}}}var exLine=c.ex||'';var engLine=eng?'<div style="font-size:14px;color:var(--b);margin-top:12px;font-weight:600;">'+eng+'</div>':'';if(!eng&&c.dk!=='conj'){engLine='';if(c.b&&!/^[a-zA-Z]/.test(c.f||'')&&c.f!==c.b){engLine='';}}return engLine+(exLine?'<div class="fc-ex">'+exLine+'</div>':'');}())+'</div></div></div>';
   h+='<div class="f-rates" id="frates" style="display:none;">';
-  h+='<button class="f-rate r-0" onclick="rateS(0)"><div class="f-rl">30m</div><div class="f-ri">Again</div></button>';
-  h+='<button class="f-rate r-1" onclick="rateS(1)"><div class="f-rl">1h</div><div class="f-ri">Hard</div></button>';
-  h+='<button class="f-rate r-2" onclick="rateS(2)"><div class="f-rl">3h</div><div class="f-ri">Tough</div></button>';
-  h+='<button class="f-rate r-3" onclick="rateS(3)"><div class="f-rl">1d</div><div class="f-ri">Okay</div></button>';
-  h+='<button class="f-rate r-4" onclick="rateS(4)"><div class="f-rl">3d</div><div class="f-ri">Good</div></button>';
-  h+='<button class="f-rate r-5" onclick="rateS(5)"><div class="f-rl">1w</div><div class="f-ri">Easy</div></button>';
-  h+='<button class="f-rate r-6" onclick="rateS(6)"><div class="f-rl">3w</div><div class="f-ri">Known</div></button>';
+  h+='<button class="f-rate r-0" onclick="rateS(0)"><span class="f-rk">1</span><div class="f-rl">30m</div><div class="f-ri">Again</div></button>';
+  h+='<button class="f-rate r-1" onclick="rateS(1)"><span class="f-rk">2</span><div class="f-rl">1h</div><div class="f-ri">Hard</div></button>';
+  h+='<button class="f-rate r-2" onclick="rateS(2)"><span class="f-rk">3</span><div class="f-rl">3h</div><div class="f-ri">Tough</div></button>';
+  h+='<button class="f-rate r-3" onclick="rateS(3)"><span class="f-rk">4</span><div class="f-rl">1d</div><div class="f-ri">Okay</div></button>';
+  h+='<button class="f-rate r-4" onclick="rateS(4)"><span class="f-rk">5</span><div class="f-rl">3d</div><div class="f-ri">Good</div></button>';
+  h+='<button class="f-rate r-5" onclick="rateS(5)"><span class="f-rk">6</span><div class="f-rl">1w</div><div class="f-ri">Easy</div></button>';
+  h+='<button class="f-rate r-6" onclick="rateS(6)"><span class="f-rk">7</span><div class="f-rl">3w</div><div class="f-ri">Known</div></button>';
   h+='</div>';
-  h+='<div class="kbd-hints" id="kbd-hints" style="display:none;"><span><span class="kbd">1</span>30m</span><span><span class="kbd">2</span>1h</span><span><span class="kbd">3</span>3h</span><span><span class="kbd">4</span>1d</span><span><span class="kbd">5</span>3d</span><span><span class="kbd">6</span>1w</span><span><span class="kbd">7</span>3w</span></div>';
+  h+='';
   h+='</div>';
   document.getElementById('flash-main').innerHTML=h;
   sFl=false;
 }
-function flipFC(){var fc=document.getElementById('fcard');if(!fc)return;fc.classList.toggle('flip');sFl=!sFl;if(sFl){document.getElementById('frates').style.display='grid';var kh=document.getElementById('kbd-hints');if(kh)kh.style.display='flex';}}
+function flipFC(){var fc=document.getElementById('fcard');if(!fc)return;fc.classList.toggle('flip');sFl=!sFl;if(sFl){document.getElementById('frates').style.display='grid';}}
 function rateS(r){var c=sCards[sIdx];rateCard(c,r);if(r>=3)sCor++;sIdx++;dailyCardCount++;saveDailyCount();logToHistory();rnFC();rfFlashStats();recordActivity();updateDailyCounter();}
 function showFDone(){
   var pct=Math.round(sCor/sCards.length*100);
