@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:17:30.969Z",
+  "synced": "2026-03-27T02:41:20.010Z",
   "xp": 90,
   "totalH": 0,
   "lessDone": 1,
@@ -62,6 +62,30 @@
     },
     {
       "fr": "Excusez-moi / Désolé(e)",
+      "en": "Excuse me / Sorry"
+    },
+    {
+      "fr": "AllÃ´",
+      "en": "Hello / Hey (Quebec casual)"
+    },
+    {
+      "fr": "Bonne journÃ©e!",
+      "en": "Have a good day!"
+    },
+    {
+      "fr": "Bonne soirÃ©e!",
+      "en": "Have a good evening!"
+    },
+    {
+      "fr": "Ã tantÃ´t!",
+      "en": "See you later today! (Quebec)"
+    },
+    {
+      "fr": "S'il vous plaÃ®t / S'il te plaÃ®t",
+      "en": "Please (formal / informal)"
+    },
+    {
+      "fr": "Excusez-moi / DÃ©solÃ©(e)",
       "en": "Excuse me / Sorry"
     }
   ],
