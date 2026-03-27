@@ -14843,7 +14843,7 @@ function getNew(){var ul=getUL();return cards.filter(function(c){return ul.has(c
 function getLearned(){return cards.filter(function(c){return c.reps>0&&c.state!=='mastered';}).length;}
 function getMastered(){return cards.filter(function(c){return c.state==='mastered';}).length;}
 function getLockedCount(){var ul=getUL();return cards.filter(function(c){return!ul.has(c.lv);}).length;}
-var NEW_CARDS_PER_DAY=20;
+var NEW_CARDS_PER_DAY=25;
 function getNewToday(){
   // Limit new cards to NEW_CARDS_PER_DAY per day
   var ul=getUL();var newCards=cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';});
@@ -15582,33 +15582,141 @@ function unmasterCard(id){
 /* ═══ ACTIVITY LOG ═══ */
 function showActivityLog(){
   var el=document.getElementById('activity-log');if(!el)return;
-  try{var h=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');}catch(e){var h=[];}
-  if(!h.length){el.innerHTML='<p style="font-size:13px;color:var(--ink4);text-align:center;">No activity yet. Start reviewing flashcards to track your progress.</p>';return;}
-  var total=h.reduce(function(s,d){return s+d.count;},0);
-  var avg=Math.round(total/h.length);
-  var best=Math.max.apply(null,h.map(function(d){return d.count;}));
-  var html='<div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;">';
-  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+total+'</div><div style="font-size:10px;color:var(--ink4);">Total reviews</div></div>';
-  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+h.length+'</div><div style="font-size:10px;color:var(--ink4);">Days active</div></div>';
-  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+avg+'</div><div style="font-size:10px;color:var(--ink4);">Daily avg</div></div>';
-  html+='<div style="text-align:center;"><div style="font-size:24px;font-weight:800;color:var(--ink);">'+best+'</div><div style="font-size:10px;color:var(--ink4);">Best day</div></div>';
+  try{var log=JSON.parse(localStorage.getItem('qbc_card_log')||'[]');}catch(e){var log=[];}
+  var streak=getStreak();var streakN=streak.streak||0;
+  var ul=getUL();
+  // Card state counts
+  var totalCards=cards.filter(function(c){return ul.has(c.lv);}).length;
+  var mastered=cards.filter(function(c){return c.state==='mastered';}).length;
+  var learning=cards.filter(function(c){return ul.has(c.lv)&&c.state==='review';}).length;
+  var newCards=cards.filter(function(c){return ul.has(c.lv)&&c.state==='new';}).length;
+  var dueNow=getDue();
+  // Category breakdown
+  var cats={vocab:0,conj:0,phrase:0,grammar:0};
+  var catLearn={vocab:0,conj:0,phrase:0,grammar:0};
+  var catMaster={vocab:0,conj:0,phrase:0,grammar:0};
+  cards.forEach(function(c){
+    if(!ul.has(c.lv))return;
+    var dk=c.dk||'vocab';
+    if(cats[dk]!==undefined)cats[dk]++;
+    if(c.state==='review'&&catLearn[dk]!==undefined)catLearn[dk]++;
+    if(c.state==='mastered'&&catMaster[dk]!==undefined)catMaster[dk]++;
+  });
+  // Level breakdown
+  var lvls=['A1','A2','B1','B2','C1'];
+  var lvData={};
+  lvls.forEach(function(lv){
+    var all=cards.filter(function(c){return c.lv===lv;});
+    var rev=all.filter(function(c){return c.state==='review';});
+    var mas=all.filter(function(c){return c.state==='mastered';});
+    lvData[lv]={total:all.length,learning:rev.length,mastered:mas.length};
+  });
+  // Activity stats
+  var totalReviews=log.reduce(function(s,d){return s+d.count;},0);
+  var daysActive=log.length;
+  var avg=daysActive?Math.round(totalReviews/daysActive):0;
+  var best=log.length?Math.max.apply(null,log.map(function(d){return d.count;})):0;
+  // Maturity distribution
+  var mature=cards.filter(function(c){return ul.has(c.lv)&&c.interval>=21;}).length;
+  var young=cards.filter(function(c){return ul.has(c.lv)&&c.state==='review'&&c.interval<21;}).length;
+  // Build HTML
+  var html='';
+  // Streak banner
+  html+='<div style="background:linear-gradient(135deg,var(--b),var(--p));border-radius:16px;padding:20px;margin-bottom:20px;color:#fff;display:flex;align-items:center;gap:16px;">';
+  html+='<div style="font-size:36px;">'+streakN+'</div>';
+  html+='<div><div style="font-size:14px;font-weight:700;">Day Streak</div><div style="font-size:11px;opacity:.8;">'+daysActive+' total days active</div></div>';
+  html+='<div style="margin-left:auto;text-align:right;"><div style="font-size:20px;font-weight:800;">'+totalReviews+'</div><div style="font-size:10px;opacity:.8;">lifetime reviews</div></div>';
   html+='</div>';
-  // Show last 30 days as a bar chart
-  var last30=h.slice(-30);
-  var maxCount=Math.max.apply(null,last30.map(function(d){return d.count;}))||1;
-  html+='<div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:8px;">Last '+last30.length+' days</div>';
-  html+='<div style="display:flex;align-items:flex-end;gap:2px;height:100px;padding:4px 0;">';
-  last30.forEach(function(d){
-    var pct=Math.max(4,Math.round(d.count/maxCount*100));
-    html+='<div style="flex:1;min-width:6px;max-width:20px;background:var(--b);border-radius:3px 3px 0 0;height:'+pct+'%;opacity:.8;" title="'+d.date+': '+d.count+' cards"></div>';
+  // Overview grid
+  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Overview</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;">';
+  var ovItems=[
+    {n:totalCards,l:'Total Cards',c:'var(--b)'},
+    {n:learning,l:'In Rotation',c:'var(--warn)'},
+    {n:mastered,l:'Mastered',c:'var(--g)'},
+    {n:newCards,l:'Unseen',c:'var(--ink4)'},
+    {n:dueNow,l:'Due Now',c:'var(--r)'},
+    {n:mature,l:'Mature (21d+)',c:'var(--p)'},
+    {n:avg,l:'Daily Average',c:'var(--b)'},
+    {n:best,l:'Best Day',c:'var(--warn)'}
+  ];
+  ovItems.forEach(function(it){
+    html+='<div style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;border-left:3px solid '+it.c+';"><div style="font-size:22px;font-weight:800;color:var(--ink);">'+it.n+'</div><div style="font-size:10px;color:var(--ink4);margin-top:2px;">'+it.l+'</div></div>';
   });
   html+='</div>';
-  // Daily breakdown table
-  html+='<div style="margin-top:16px;">';
-  h.slice().reverse().slice(0,30).forEach(function(d){
-    html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:12px;"><span style="color:var(--ink3);">'+d.date+'</span><span style="font-weight:700;color:var(--ink);">'+d.count+' cards</span><span style="color:var(--ink4);">'+d.mastered+' mastered</span></div>';
+  // Card maturity breakdown bar
+  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;">Card Status</div>';
+  var total=totalCards||1;
+  var pNew=Math.round(newCards/total*100);
+  var pYoung=Math.round(young/total*100);
+  var pMature=Math.round(mature/total*100);
+  var pMaster=Math.round(mastered/total*100);
+  html+='<div style="display:flex;height:24px;border-radius:12px;overflow:hidden;margin-bottom:6px;background:var(--line);">';
+  if(pMaster>0)html+='<div style="width:'+pMaster+'%;background:var(--g);transition:width .3s;" title="Mastered '+pMaster+'%"></div>';
+  if(pMature>0)html+='<div style="width:'+pMature+'%;background:var(--p);transition:width .3s;" title="Mature '+pMature+'%"></div>';
+  if(pYoung>0)html+='<div style="width:'+pYoung+'%;background:var(--warn);transition:width .3s;" title="Learning '+pYoung+'%"></div>';
+  if(pNew>0)html+='<div style="width:'+pNew+'%;background:var(--ink5);transition:width .3s;" title="Unseen '+pNew+'%"></div>';
+  html+='</div>';
+  html+='<div style="display:flex;gap:12px;font-size:9px;color:var(--ink4);margin-bottom:24px;flex-wrap:wrap;">';
+  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g);margin-right:3px;"></span>Mastered '+pMaster+'%</span>';
+  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--p);margin-right:3px;"></span>Mature '+pMature+'%</span>';
+  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:3px;"></span>Learning '+pYoung+'%</span>';
+  html+='<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink5);margin-right:3px;"></span>Unseen '+pNew+'%</span>';
+  html+='</div>';
+  // Category breakdown
+  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">By Category</div>';
+  var catNames={vocab:'Vocabulary',conj:'Conjugation',phrase:'Phrases',grammar:'Grammar'};
+  var catColors={vocab:'var(--b)',conj:'var(--p)',phrase:'var(--warn)',grammar:'var(--g)'};
+  html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px;">';
+  ['vocab','conj','phrase','grammar'].forEach(function(dk){
+    var ct=cats[dk]||0;var cl=catLearn[dk]||0;var cm=catMaster[dk]||0;var cn=ct-cl-cm;
+    var pctDone=ct?Math.round((cl+cm)/ct*100):0;
+    html+='<div style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:700;color:var(--ink);">'+catNames[dk]+'</span><span style="font-size:10px;color:var(--ink4);">'+ct+'</span></div>';
+    html+='<div style="height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:6px;"><div style="height:100%;width:'+pctDone+'%;background:'+catColors[dk]+';border-radius:3px;transition:width .3s;"></div></div>';
+    html+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink4);"><span>'+cl+' learning</span><span>'+cm+' mastered</span><span>'+cn+' unseen</span></div>';
+    html+='</div>';
   });
   html+='</div>';
+  // Level breakdown
+  html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">By Level</div>';
+  var lvColors={A1:'var(--a1)',A2:'var(--a2)',B1:'var(--b1)',B2:'var(--b2)',C1:'var(--c1)'};
+  html+='<div style="margin-bottom:24px;">';
+  lvls.forEach(function(lv){
+    var d=lvData[lv];if(!d.total)return;
+    var pct=Math.round((d.learning+d.mastered)/d.total*100);
+    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">';
+    html+='<span style="font-size:11px;font-weight:700;color:'+lvColors[lv]+';width:24px;">'+lv+'</span>';
+    html+='<div style="flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+lvColors[lv]+';border-radius:4px;transition:width .3s;"></div></div>';
+    html+='<span style="font-size:10px;color:var(--ink4);width:70px;text-align:right;">'+d.learning+'/'+d.total+'</span>';
+    html+='</div>';
+  });
+  html+='</div>';
+  // Activity chart
+  if(log.length){
+    var last30=log.slice(-30);
+    var maxCount=Math.max.apply(null,last30.map(function(d){return d.count;}))||1;
+    html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Activity (Last '+last30.length+' days)</div>';
+    html+='<div style="display:flex;align-items:flex-end;gap:2px;height:120px;padding:4px 0;margin-bottom:4px;">';
+    last30.forEach(function(d,i){
+      var pct=Math.max(4,Math.round(d.count/maxCount*100));
+      var isToday=i===last30.length-1;
+      html+='<div style="flex:1;min-width:6px;max-width:20px;background:'+(isToday?'var(--p)':'var(--b)')+';border-radius:3px 3px 0 0;height:'+pct+'%;opacity:'+(isToday?'1':'.7')+';transition:height .3s;" title="'+d.date+': '+d.count+' cards"></div>';
+    });
+    html+='</div>';
+    html+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink5);margin-bottom:24px;"><span>'+last30[0].date+'</span><span>'+last30[last30.length-1].date+'</span></div>';
+    // Recent history
+    html+='<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;">Recent Sessions</div>';
+    log.slice().reverse().slice(0,14).forEach(function(d){
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;">';
+      html+='<span style="color:var(--ink3);">'+d.date+'</span>';
+      html+='<span style="font-weight:700;color:var(--ink);">'+d.count+' cards</span>';
+      html+='<span style="font-size:10px;color:var(--g);">'+d.mastered+' mastered</span>';
+      html+='</div>';
+    });
+  } else {
+    html+='<p style="font-size:13px;color:var(--ink4);text-align:center;margin-top:20px;">Start reviewing flashcards to see your activity history here.</p>';
+  }
   el.innerHTML=html;
 }
 
