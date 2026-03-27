@@ -848,7 +848,8 @@ function sEl(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
 /* ═══ NAVIGATION ═══ */
 var currentView='dashboard';
 
-function openMobNav(){document.getElementById('sidenav').classList.add('open');document.getElementById('mob-overlay').classList.add('show');}
+var _navSwipeLock=false;
+function openMobNav(){_navSwipeLock=true;document.getElementById('sidenav').classList.add('open');document.getElementById('mob-overlay').classList.add('show');setTimeout(function(){_navSwipeLock=false;},350);}
 function closeMobNav(){document.getElementById('sidenav').classList.remove('open');document.getElementById('mob-overlay').classList.remove('show');}
 function toggleMobNav(){var nav=document.getElementById('sidenav');nav.classList.contains('open')?closeMobNav():openMobNav();}
 // Swipe gesture to open/close sidebar
@@ -857,7 +858,6 @@ function toggleMobNav(){var nav=document.getElementById('sidenav');nav.classList
   var EDGE_WIDTH=30,MIN_SWIPE=60,MAX_Y=80,MAX_TIME=400;
   document.addEventListener('touchstart',function(e){
     var t=e.touches[0];touchStartX=t.clientX;touchStartY=t.clientY;touchStartTime=Date.now();swiping=false;
-    // Only detect edge swipe if nav is closed
     var navOpen=document.getElementById('sidenav').classList.contains('open');
     if(!navOpen&&touchStartX<=EDGE_WIDTH)swiping=true;
     if(navOpen)swiping=true;
@@ -867,13 +867,14 @@ function toggleMobNav(){var nav=document.getElementById('sidenav');nav.classList
     var t=e.changedTouches[0];var dx=t.clientX-touchStartX;var dy=Math.abs(t.clientY-touchStartY);var dt=Date.now()-touchStartTime;
     if(dy>MAX_Y||dt>MAX_TIME)return;
     var navOpen=document.getElementById('sidenav').classList.contains('open');
-    if(!navOpen&&dx>MIN_SWIPE){openMobNav();}
+    if(!navOpen&&dx>MIN_SWIPE){e.preventDefault();openMobNav();}
     else if(navOpen&&dx<-MIN_SWIPE){closeMobNav();}
-  },{passive:true});
+  },{passive:false});
 })();
 function toast(ico,msg){var t=document.getElementById('toast');document.getElementById('toast-text').textContent=msg;t.querySelector('.toast-ico').textContent=ico;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 var _skipPush=false,_flashModeOverride=false;
 function goView(v){
+  if(_navSwipeLock)return;
   currentView=v;closeMobNav();
   document.querySelectorAll('.page-view').forEach(function(el){el.classList.remove('active');});
   var target=document.getElementById('v-'+v);
