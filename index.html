@@ -16082,22 +16082,11 @@ function ghSetToken(t){
   ghSync.token=t.trim().replace(/\s/g,'');
   if(ghSync.token){
     localStorage.setItem('qbc_gh_token',ghSync.token);
-    toast('','Token saved ('+ghSync.token.slice(0,4)+'...). Testing...');
-    // Test token first
-    fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo,{headers:ghGetHeaders()})
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    }).then(function(repo){
-      toast('','Connected to '+repo.full_name+'! Syncing...');
-      return ghPull();
-    }).then(function(ok){
-      if(ok){ghPush();}
-      else{toast('','Pull failed after connect');}
-    }).catch(function(e){
-      toast('','Token test failed: '+e.message);
-      console.error('Token test:',e);
-    });
+    toast('','Token saved. Pulling data...');
+    ghPull().then(function(ok){
+      if(ok){toast('','Synced!');}
+      else{toast('','Pull failed — check token');}
+    }).catch(function(e){toast('','Error: '+e.message);});
   } else {
     localStorage.removeItem('qbc_gh_token');
     toast('','Token removed');
@@ -16235,31 +16224,29 @@ async function ghPull(){
   }
 }
 
-async function ghPush(retries){
-  if(!ghSync.token){return false;}
-  if(retries===undefined)retries=2;
+async function ghPush(){
+  if(!ghSync.token||ghSync.syncing){return false;}
   ghSync.syncing=true;ghSync.dirty=false;ghUpdateUI();
   try{
-    // Pull first to merge remote changes, then get fresh SHA
+    // Get current SHA
     var sha=null;
     var r=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file+'?ref='+ghSync.branch,{headers:ghGetHeaders()});
-    if(r.ok){
-      var j=await r.json();sha=j.sha;
-      // Merge remote data before pushing
-      try{var content=atob(j.content.replace(/\n/g,''));var remoteData=JSON.parse(content);ghApplyPayload(remoteData);}catch(e){}
-    }
+    if(r.ok){var j=await r.json();sha=j.sha;}
     var payload=ghBuildPayload();
     var body={
-      message:'Sync progress \u2014 '+new Date().toISOString().slice(0,16),
+      message:'Sync '+new Date().toISOString().slice(0,16),
       content:btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))),
       branch:ghSync.branch
     };
     if(sha) body.sha=sha;
     var r2=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file,{method:'PUT',headers:ghGetHeaders(),body:JSON.stringify(body)});
-    if(r2.status===409&&retries>0){
-      // SHA conflict — retry with fresh SHA
+    if(r2.status===409){
+      // SHA changed — get new SHA and retry once
       ghSync.syncing=false;
-      return ghPush(retries-1);
+      var r3=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file+'?ref='+ghSync.branch,{headers:ghGetHeaders()});
+      if(r3.ok){var j3=await r3.json();body.sha=j3.sha;}
+      ghSync.syncing=true;
+      r2=await fetch('https://api.github.com/repos/'+ghSync.owner+'/'+ghSync.repo+'/contents/'+ghSync.file,{method:'PUT',headers:ghGetHeaders(),body:JSON.stringify(body)});
     }
     if(!r2.ok){var err=await r2.json();throw new Error(err.message||'HTTP '+r2.status);}
     ghSync.lastSync=new Date().toLocaleString();
@@ -16269,21 +16256,15 @@ async function ghPush(retries){
   }catch(e){
     console.error('GitHub push error:',e);
     ghSync.syncing=false;ghUpdateUI();
-    // Don't spam toasts — only show if not a debounce retry
-    if(!ghSync._toastCooldown){
-      toast('','Sync push failed: '+e.message);
-      ghSync._toastCooldown=true;
-      setTimeout(function(){ghSync._toastCooldown=false;},30000);
-    }
     return false;
   }
 }
 
 function ghDebouncedPush(){
-  if(!ghSync.token) return;
+  if(!ghSync.token||ghSync.syncing) return;
   ghSync.dirty=true;
   clearTimeout(ghSync.debounceTimer);
-  ghSync.debounceTimer=setTimeout(function(){ghPush();},10000); // push 10s after last save
+  ghSync.debounceTimer=setTimeout(function(){if(!ghSync.syncing)ghPush();},30000); // push 30s after last save
 }
 
 // Patch sv() to also trigger cloud sync
@@ -16313,16 +16294,17 @@ function ghShowSetup(){
 
 function ghForceSync(){
   if(!ghSync.token){toast('','Set up your GitHub token first.');return;}
-  toast('','Syncing with cloud...');
+  if(ghSync.syncing){toast('','Already syncing...');return;}
+  toast('','Syncing...');
   ghPull().then(function(ok){
-    if(ok){
+    if(!ok){toast('','Pull failed');return;}
+    // Small delay before push to avoid SHA race
+    setTimeout(function(){
       ghPush().then(function(ok2){
-        if(ok2) toast('','Sync complete!');
+        toast('',ok2?'Sync complete!':'Push failed');
       });
-    } else {
-      toast('','Sync failed — check your token');
-    }
-  }).catch(function(e){toast('','Sync error: '+e.message);});
+    },1000);
+  });
 }
 
 // Auto-pull on load if token exists
