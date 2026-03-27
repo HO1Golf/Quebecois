@@ -244,11 +244,11 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .fc-ex{font-size:13px;color:var(--ink3);text-align:center;margin-top:14px;font-style:italic;line-height:1.5;max-width:380px;}
 /* 7 rating buttons pinned at bottom */
 .f-rates{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;flex-shrink:0;margin-top:auto;padding:12px 0 env(safe-area-inset-bottom,0);}
-.f-rate{padding:16px 2px;border-radius:12px;border:none;font-family:inherit;font-size:10px;font-weight:700;transition:all .1s;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+.f-rate{padding:16px 2px;border-radius:12px;border:none;font-family:inherit;font-size:10px;font-weight:700;transition:all .1s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,.04);position:relative;}
 .f-rate:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.08);}
 .f-rate:active{transform:scale(.93);}
 .r-0{background:#FEE2E2;color:#DC2626;}.r-1{background:#FEF3C7;color:#D97706;}.r-2{background:#FFF7ED;color:#EA580C;}.r-3{background:#ECFDF5;color:#059669;}.r-4{background:#DBEAFE;color:#1D4ED8;}.r-5{background:#EDE9FE;color:#7C3AED;}.r-6{background:#F0FDF4;color:#15803D;}
-.f-rl{font-size:14px;font-weight:800;white-space:nowrap;letter-spacing:-.3px;}.f-ri{font-size:7px;opacity:.5;text-transform:uppercase;letter-spacing:.03em;}
+.f-rl{position:absolute;top:3px;right:5px;font-size:8px;font-weight:600;opacity:.45;white-space:nowrap;letter-spacing:-.2px;}.f-ri{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;}
 .kbd-hints{display:flex;justify-content:center;gap:8px;margin-top:4px;font-size:9px;color:var(--ink5);flex-shrink:0;}
 .kbd{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border:1px solid var(--line);border-radius:3px;font-size:8px;font-weight:700;color:var(--ink4);background:var(--cream);margin-right:2px;padding:0 3px;}
 
@@ -446,7 +446,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   .fc-lvbadge{margin-bottom:12px;}
   .f-rates{gap:4px;padding:8px 0 env(safe-area-inset-bottom,8px);}
   .f-rate{padding:14px 0;border-radius:10px;}
-  .f-rl{font-size:14px;}.f-ri{font-size:7px;}
+  .f-rl{font-size:7px;top:2px;right:4px;}.f-ri{font-size:10px;}
   .kbd-hints{display:none;}
 
   /* Checkpoints */
@@ -699,7 +699,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-ghost" onclick="ghShowSetup()" style="font-size:11px;">⚙ Setup</button>
         <button class="btn btn-ghost" onclick="ghForceSync()" style="font-size:11px;">🔄 Sync Now</button>
-        <button class="btn btn-ghost" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){localStorage.removeItem('qbc4');localStorage.removeItem('qbc_welcomed');localStorage.removeItem('qbc_gh_token');localStorage.removeItem('qbc_gh_lastsync');location.reload();}" style="font-size:11px;color:var(--r);">Reset</button>
+        <button class="btn btn-ghost" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){['qbc4','qbc_welcomed','qbc_gh_token','qbc_gh_lastsync','qbc_daily','qbc_card_log','qbc_streak','qbc_saved','qbc_custom'].forEach(function(k){localStorage.removeItem(k);});location.reload();}" style="font-size:11px;color:var(--r);">Reset</button>
       </div>
     </div>
     <div id="gh-token-input" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">
@@ -14885,9 +14885,25 @@ function startStudy(){
     document.getElementById('flash-main').innerHTML='<div class="empty"><h3>All caught up!</h3><p>No cards due right now. Come back later for scheduled reviews, or start a new lesson to unlock more cards.</p><button class="btn btn-primary" onclick="goView(\'dashboard\')" style="margin-top:12px;">Go to lessons</button></div>';return;}
   sIdx=0;sFl=false;sCor=0;rnFC();
 }
+function pickCardMode(c){
+  // Randomly pick presentation mode based on card type
+  var r=Math.random();
+  // Conjugation cards: type answer 50%, flip 30%, MC 20%
+  if(c.dk==='conj')return r<0.5?'type':r<0.8?'flip':'mc';
+  // Vocab/phrase: MC 35%, type 35%, flip 30%
+  if(c.dk==='vocab'||c.dk==='phrase')return r<0.35?'mc':r<0.7?'type':'flip';
+  // Grammar: flip 50%, type 30%, MC 20%
+  return r<0.5?'flip':r<0.8?'type':'mc';
+}
+function getMCWrongs(c,n){
+  var pool=cards.filter(function(x){return x.dk===c.dk&&x.id!==c.id&&x.b!==c.b&&x.b;});
+  if(pool.length<n)pool=cards.filter(function(x){return x.id!==c.id&&x.b!==c.b&&x.b;});
+  return pool.sort(function(){return Math.random()-.5;}).slice(0,n);
+}
 function rnFC(){
   if(sIdx>=sCards.length){showFDone();return;}
   var c=sCards[sIdx],pct=Math.round(sIdx/sCards.length*100);
+  var mode=pickCardMode(c);
   var lvc={A1:'var(--a1l)',A2:'var(--a2l)',B1:'var(--b1l)',B2:'var(--b2l)',C1:'var(--c1l)'};
   var lvt={A1:'var(--a1)',A2:'var(--a2)',B1:'var(--b1)',B2:'var(--b2)',C1:'var(--c1)'};
   var h='<div style="display:flex;flex-direction:column;flex:1;min-height:0;">';
