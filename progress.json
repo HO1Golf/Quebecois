@@ -1,6 +1,6 @@
 {
   "version": "qbc-sync-v1",
-  "synced": "2026-03-27T02:41:20.010Z",
+  "synced": "2026-03-27T02:41:39.261Z",
   "xp": 90,
   "totalH": 0,
   "lessDone": 1,
@@ -65,6 +65,26 @@
       "en": "Excuse me / Sorry"
     },
     {
+      "fr": "Je m'appelle...",
+      "en": "My name is..."
+    },
+    {
+      "fr": "Je viens de... / Je suis de...",
+      "en": "I'm from..."
+    },
+    {
+      "fr": "J'habite à Montréal.",
+      "en": "I live in Montreal."
+    },
+    {
+      "fr": "Je suis analyste financier.",
+      "en": "I'm a financial analyst. (no article!)"
+    },
+    {
+      "fr": "J'ai 28 ans.",
+      "en": "I'm 28 (lit: I HAVE 28 years)"
+    },
+    {
       "fr": "AllÃ´",
       "en": "Hello / Hey (Quebec casual)"
     },
@@ -87,6 +107,30 @@
     {
       "fr": "Excusez-moi / DÃ©solÃ©(e)",
       "en": "Excuse me / Sorry"
+    },
+    {
+      "fr": "AllÃÂ´",
+      "en": "Hello / Hey (Quebec casual)"
+    },
+    {
+      "fr": "Bonne journÃÂ©e!",
+      "en": "Have a good day!"
+    },
+    {
+      "fr": "Bonne soirÃÂ©e!",
+      "en": "Have a good evening!"
+    },
+    {
+      "fr": "ÃÂ tantÃÂ´t!",
+      "en": "See you later today! (Quebec)"
+    },
+    {
+      "fr": "S'il vous plaÃÂ®t / S'il te plaÃÂ®t",
+      "en": "Please (formal / informal)"
+    },
+    {
+      "fr": "Excusez-moi / DÃÂ©solÃÂ©(e)",
+      "en": "Excuse me / Sorry"
     }
   ],
   "customCards": [],
@@ -99,30 +143,102 @@
   "cardLog": [
     {
       "date": "2026-03-27",
-      "count": 4,
+      "count": 12,
       "mastered": 0
     }
   ],
   "dailyCount": {
     "date": "2026-03-27",
-    "count": 4
+    "count": 12
   },
   "cardProgress": [
     {
-      "id": "h5087",
-      "interval": 0,
-      "ease": 2.3,
-      "reps": 0,
-      "due": "2026-03-27",
-      "state": "learning",
+      "id": "g1404",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
       "knownCount": 0
     },
     {
-      "id": "x11795",
+      "id": "g1477",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "g1483",
       "interval": 1,
       "ease": 2.5,
       "reps": 1,
       "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "x10158",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "x10159",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "f51480",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "f51561",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "r80581",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "r80587",
+      "interval": 1,
+      "ease": 2.5,
+      "reps": 1,
+      "due": "2026-03-28",
+      "state": "review",
+      "knownCount": 0
+    },
+    {
+      "id": "r80589",
+      "interval": 3,
+      "ease": 2.55,
+      "reps": 1,
+      "due": "2026-03-30",
       "state": "review",
       "knownCount": 0
     }
