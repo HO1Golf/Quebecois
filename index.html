@@ -14626,7 +14626,7 @@ function makeExercisesInteractive(){
     var html=bt.innerHTML;
     var answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
     if(!answerSpans.length)return;
-    if(html.indexOf('____')<0)return;
+    if(html.indexOf('___')<0)return;
     var answerText='';answerSpans.forEach(function(s){answerText+=s.textContent+' ';});
     var answers=[];
     var parenMatches=answerText.match(/\(([^)]+)\)/g);
@@ -14640,7 +14640,7 @@ function makeExercisesInteractive(){
         if(slashParts.length>1){slashParts.forEach(function(p){answers.push(p.replace(/"/g,'').trim());});}
         else{
           // Last resort: split by / if there are blanks
-          var blankCount=(html.match(/_{4,}/g)||[]).length;
+          var blankCount=(html.match(/_{3,}/g)||[]).length;
           var raw=answerText.replace(/^Example:\s*/i,'').replace(/"/g,'').trim().split(/\s*\/\s*/);
           if(raw.length>=blankCount){raw.forEach(function(p){if(p.trim())answers.push(p.trim());});}
         }
@@ -14649,8 +14649,11 @@ function makeExercisesInteractive(){
     // If no parsed answers, treat blanks as free-form (any text accepted)
     var freeForm=!answers.length;
     answerSpans.forEach(function(s){s.style.display='none';});
+    // Strip <b> tags around blanks before splitting
+    var cleanHTML=bt.innerHTML.replace(/<b>_{3,}<\/b>/g,function(m){return m.replace(/<\/?b>/g,'');});
+    bt.innerHTML=cleanHTML;
     // Split content at each blank and rebuild as aligned rows
-    var parts=bt.innerHTML.split(/_{4,}/);
+    var parts=bt.innerHTML.split(/_{3,}/);
     var newHTML='';
     for(var i=0;i<parts.length-1;i++){
       var ans=freeForm?'__free__':(answers[i]||'');
