@@ -166,9 +166,10 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .ex-input:focus{border-color:var(--b);}
 .ex-input.correct{border-color:var(--g);background:var(--gl);color:#065F46;}
 .ex-input.wrong{border-color:var(--r);background:#FEF2F2;color:#991B1B;}
-.ex-select{border:2px solid var(--bm);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;cursor:pointer;min-width:140px;box-sizing:border-box;}
-.ex-dd-row{margin:10px 0 14px 0;}.ex-dd-label{display:block;margin-bottom:6px;line-height:1.4;}
-.ex-dd-controls{display:flex;align-items:center;gap:8px;padding-left:16px;}
+.ex-select{border:1px solid var(--bm);border-radius:6px;padding:2px 6px;font-size:inherit;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;cursor:pointer;box-sizing:border-box;vertical-align:baseline;}
+.ex-dd-row{margin:4px 0;line-height:1.8;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+.ex-dd-sentence{flex:1;min-width:0;}
+.ex-dd-btns{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .ex-check,.ex-show{font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;color:white;flex-shrink:0;}
 .ex-check{background:var(--b);}.ex-show{background:var(--ink4);}
 .ex-check:hover,.ex-show:hover{opacity:.85;}
@@ -14649,14 +14650,21 @@ function makeExercisesInteractive(){
       for(var i=0;i<parts.length-1;i++){
         var ans=answers[i]?answers[i].replace(/\s*[—\-].*/,'').trim().toLowerCase():'';
         var id='exdd_'+(exId++);
-        var label=parts[i].replace(/<span[^>]*style="[^"]*display:\s*none[^"]*"[^>]*>[\s\S]*?<\/span>/g,'').trim();
-        newHTML+='<div class="ex-dd-row"><div class="ex-dd-label">'+label+'</div>'
-          +'<div class="ex-dd-controls"><select class="ex-select" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'">'
+        var before=parts[i].replace(/<span[^>]*style="[^"]*display:\s*none[^"]*"[^>]*>[\s\S]*?<\/span>/g,'').trim();
+        var after=(parts[i+1]||'').replace(/<span[^>]*style="[^"]*display:\s*none[^"]*"[^>]*>[\s\S]*?<\/span>/g,'');
+        // Grab text up to the next blank or end (before next <br> or numbered item)
+        var afterInline='';var afterRest='';
+        var brPos=after.indexOf('<br');
+        if(brPos>=0){afterInline=after.substring(0,brPos);afterRest=after.substring(brPos);}
+        else{afterInline=after;afterRest='';}
+        parts[i+1]=afterRest; // put the rest back for next iteration
+        newHTML+='<div class="ex-dd-row"><span class="ex-dd-sentence">'+before
+          +'<select class="ex-select" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'">'
           +'<option value="">...</option>';
         uniqueOpts.forEach(function(o){newHTML+='<option value="'+o+'">'+o+'</option>';});
-        newHTML+='</select>'
-          +'<button class="ex-check" onclick="checkDropdown(\''+id+'\')">Check</button>'
-          +'<button class="ex-show" onclick="showDropdownAnswer(\''+id+'\')">Show</button></div></div>';
+        newHTML+='</select>'+afterInline.trim()+'</span>'
+          +'<span class="ex-dd-btns"><button class="ex-check" onclick="checkDropdown(\''+id+'\')">Check</button>'
+          +'<button class="ex-show" onclick="showDropdownAnswer(\''+id+'\')">Show</button></span></div>';
       }
       if(parts.length>0)newHTML+=parts[parts.length-1];
       bt.innerHTML=newHTML;
@@ -14675,10 +14683,10 @@ function checkDropdown(id){
   var answer=sel.getAttribute('data-answer');
   if(!sel.value)return;
   if(normalizeAnswer(sel.value)===normalizeAnswer(answer)){
-    sel.style.border='2px solid var(--g)';sel.style.background='var(--gl)';sel.disabled=true;
+    sel.style.border='1px solid var(--g)';sel.style.background='var(--gl)';sel.disabled=true;
     var row=sel.closest('.ex-dd-row');if(row){row.querySelectorAll('button').forEach(function(b){b.disabled=true;b.style.opacity='.4';});}
   } else {
-    sel.style.border='2px solid var(--r)';sel.style.background='var(--rl)';
+    sel.style.border='1px solid var(--r)';sel.style.background='var(--rl)';
     setTimeout(function(){sel.style.border='';sel.style.background='';},1500);
   }
   checkLessonUnlock();
@@ -14686,7 +14694,7 @@ function checkDropdown(id){
 function showDropdownAnswer(id){
   var sel=document.getElementById(id);
   var answer=sel.getAttribute('data-answer');
-  sel.value=answer;sel.style.border='2px solid var(--ink4)';sel.disabled=true;
+  sel.value=answer;sel.style.border='1px solid var(--ink4)';sel.disabled=true;
   var row=sel.closest('.ex-dd-row');if(row){row.querySelectorAll('button').forEach(function(b){b.disabled=true;b.style.opacity='.4';});}
   checkLessonUnlock();
 }
