@@ -14659,7 +14659,7 @@ function makeExercisesInteractive(){
       newHTML+='<div class="ex-row"><div class="ex-prompt">'+prompt+'</div>'
         +'<input type="text" class="ex-input'+(freeForm?' ex-free':'')+'" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" onkeydown="if(event.key===\'Enter\')checkExAnswer(\''+id+'\')">'
         +'<button class="ex-check" onclick="checkExAnswer(\''+id+'\')">Check</button>'
-        +'<button class="ex-show" onclick="showExAnswer(\''+id+'\')">Show</button>'
+        +'<button class="ex-show" disabled style="opacity:.4;" onclick="showExAnswer(\''+id+'\')">Show</button>'
         +'<span class="ex-fb" id="'+id+'_fb"></span></div>';
     }
     if(parts.length>0)newHTML+=parts[parts.length-1];
@@ -14685,7 +14685,7 @@ function checkExAnswer(id){
   var fb=document.getElementById(id+'_fb');
   var answer=inp.getAttribute('data-answer');
   var userVal=inp.value.trim();
-  if(!userVal){fb.className='ex-fb no';fb.textContent='Type something first';return;}
+  if(!userVal)return;
   // Free-form exercises: any non-empty answer is accepted
   if(answer==='__free__'){
     fb.className='ex-fb ok';fb.textContent='Great!';inp.className='ex-input correct';inp.disabled=true;
@@ -14702,6 +14702,9 @@ function checkExAnswer(id){
     var accentMatch=acceptables.some(function(a){return a.normalize('NFD').replace(/[\u0300-\u036f]/g,'')===userNoAccent;});
     if(accentMatch){fb.className='ex-fb no';fb.innerHTML='Almost! Accents matter: <b>'+answer+'</b>';inp.className='ex-input wrong';setTimeout(function(){inp.className='ex-input';fb.textContent='';},2500);return;}
   }
+  // Enable the Show button after first attempt
+  var showBtn=inp.parentElement.querySelector('.ex-show');
+  if(showBtn){showBtn.disabled=false;showBtn.style.opacity='1';}
   if(correct){
     fb.className='ex-fb ok';fb.textContent='Correct!';inp.className='ex-input correct';inp.disabled=true;
     checkLessonUnlock();
