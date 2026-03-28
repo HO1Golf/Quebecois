@@ -75,11 +75,10 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .sb-stat{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:100px;white-space:nowrap;}
 .sb-xp{background:var(--ol);color:var(--gold);}
 .sb-str{background:var(--rl);color:var(--r);}
-.sb-sync{display:flex;align-items:center;gap:6px;}
-.sb-sync-status{font-size:11px;color:var(--ink4);}
-.sb-sync-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;opacity:.6;transition:opacity .15s;}
-.sb-sync-btn:hover{opacity:1;background:var(--cream);}
-.sb-sync-reset{font-size:11px;color:var(--r);font-weight:700;}
+.sb-sync{display:flex;align-items:center;gap:2px;}
+.sb-sync-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--ink4);display:flex;align-items:center;transition:all .15s;}
+.sb-sync-btn:hover{color:var(--ink);background:var(--cream);}
+.sb-sync-reset{color:var(--r);}.sb-sync-reset:hover{color:var(--r);background:var(--rl);}
 .sb-token-panel{position:sticky;top:calc(44px + env(safe-area-inset-top,0px));z-index:19;background:var(--paper);border-bottom:1px solid var(--line);padding:14px 24px;}
 
 
@@ -110,7 +109,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .lc-units{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;}
 .lu{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:var(--rsm);border:1px solid var(--line);font-size:11px;cursor:pointer;transition:all .12s;background:var(--paper);}
 .lu:hover:not(.lu-lk){border-color:var(--bm);background:var(--bl);}
-.lu-lk{opacity:.35;cursor:default;}.lu-done{border-left:3px solid var(--g);}.lu-cur{border-left:3px solid var(--b);background:var(--bl);}
+.lu-lk{opacity:.35;cursor:default;}.lu-done{background:var(--gl);border-color:var(--g);color:#065F46;}.lu-cur{border-left:3px solid var(--b);background:var(--bl);}
 .lu-ico{font-size:14px;flex-shrink:0;}
 .lu-name{flex:1;font-weight:500;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lu-st{font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;flex-shrink:0;}
@@ -683,10 +682,9 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
   </div>
   <div style="flex:1;"></div>
   <div class="sb-sync">
-    <span class="sb-sync-status" id="gh-sync-status">☁️</span>
-    <button class="sb-sync-btn" onclick="ghShowSetup()" title="Setup">⚙</button>
-    <button class="sb-sync-btn" onclick="ghForceSync()" title="Sync Now">🔄</button>
-    <button class="sb-sync-btn sb-sync-reset" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){['qbc4','qbc_welcomed','qbc_gh_token','qbc_gh_lastsync','qbc_daily','qbc_card_log','qbc_streak','qbc_saved','qbc_custom'].forEach(function(k){localStorage.removeItem(k);});location.reload();}" title="Reset">✕</button>
+    <button class="sb-sync-btn" onclick="ghShowSetup()" title="Setup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="sb-sync-btn" onclick="ghForceSync()" title="Sync Now"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+    <button class="sb-sync-btn sb-sync-reset" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){['qbc4','qbc_welcomed','qbc_gh_token','qbc_gh_lastsync','qbc_daily','qbc_card_log','qbc_streak','qbc_saved','qbc_custom'].forEach(function(k){localStorage.removeItem(k);});location.reload();}" title="Reset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
 </div>
 <div id="gh-token-input" class="sb-token-panel" style="display:none;">
@@ -14856,7 +14854,13 @@ function showQD(){
   document.getElementById('qdsub').innerHTML=subText+reviewHTML;
   var nk=cU+'-'+(cI+1);var btn=document.getElementById('btnqcont');
   if(passed&&LD[nk]){btn.textContent='Next lesson →';btn.onclick=function(){oL(cU,cI+1);};}
-  else if(passed){btn.textContent='Back to dashboard';btn.onclick=function(){goView('dashboard');};}
+  else if(passed){
+    // Find next unit with content
+    var nextUnit=null;
+    for(var _li=0;_li<LEVELS.length;_li++){var _lv=LEVELS[_li];for(var _ui=0;_ui<_lv.units.length;_ui++){var _u=_lv.units[_ui];if(_u.i===cU){var ni=_ui+1<_lv.units.length?_lv.units[_ui+1]:null;if(!ni&&_li+1<LEVELS.length)ni=LEVELS[_li+1].units[0];if(ni&&LD[ni.i+'-0']){nextUnit=ni;}break;}};if(nextUnit)break;}
+    if(nextUnit){btn.textContent='Next unit →';btn.onclick=function(){oL(nextUnit.i,0);};}
+    else{btn.textContent='Back to dashboard';btn.onclick=function(){goView('dashboard');};}
+  }
   else{btn.textContent='Review lesson & retry';btn.onclick=function(){oL(cU,cI);};}
 }
 
