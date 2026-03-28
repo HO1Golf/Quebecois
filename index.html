@@ -14655,7 +14655,7 @@ function makeExercisesInteractive(){
       // Dropdown select mode — get unique options from answers
       var uniqueOpts=[];
       answers.forEach(function(a){
-        var clean=a.replace(/\s*[—\-].*/,'').trim();
+        var clean=a.replace(/\s*[—\-].*/,'').trim().toLowerCase();
         if(uniqueOpts.indexOf(clean)<0)uniqueOpts.push(clean);
       });
       answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
@@ -14663,7 +14663,7 @@ function makeExercisesInteractive(){
       var parts=bt.innerHTML.split(/_{3,}/);
       var newHTML='';
       for(var i=0;i<parts.length-1;i++){
-        var ans=answers[i]?answers[i].replace(/\s*[—\-].*/,'').trim():'';
+        var ans=answers[i]?answers[i].replace(/\s*[—\-].*/,'').trim().toLowerCase():'';
         var id='exdd_'+(exId++);
         var label=parts[i].replace(/<span[^>]*style="[^"]*display:\s*none[^"]*"[^>]*>[\s\S]*?<\/span>/g,'').trim();
         newHTML+='<div class="ex-dd-row"><div class="ex-dd-label">'+label+'</div>'
@@ -14766,9 +14766,8 @@ function allExercisesDone(){
 }
 function checkLessonUnlock(){
   var btn=document.getElementById('lesNextBtn');if(!btn)return;
-  var atBottom=btn.getAttribute('data-at-bottom')==='true';
   var exDone=allExercisesDone();
-  if(atBottom&&exDone){btn.classList.remove('btn-next-locked');}
+  if(exDone){btn.classList.remove('btn-next-locked');}
   else{btn.classList.add('btn-next-locked');}
   // Unlock checkpoints when all exercises above them are done
   document.querySelectorAll('#lcont .checkpoint').forEach(function(cp){
