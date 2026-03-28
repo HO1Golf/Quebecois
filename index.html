@@ -161,9 +161,9 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .ex-input:focus{border-color:var(--b);}
 .ex-input.correct{border-color:var(--g);background:var(--gl);color:#065F46;}
 .ex-input.wrong{border-color:var(--r);background:#FEF2F2;color:#991B1B;}
-.ex-select{border:2px solid var(--bm);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;cursor:pointer;width:180px;box-sizing:border-box;}
-.ex-dd-row{display:flex;align-items:center;gap:10px;margin:6px 0;flex-wrap:wrap;}.ex-dd-label{min-width:160px;}
-.ex-dd-fb{font-size:12px;font-weight:600;}.ex-dd-fb.ok{color:var(--g);}.ex-dd-fb.no{color:var(--r);}
+.ex-select{border:2px solid var(--bm);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;cursor:pointer;min-width:140px;box-sizing:border-box;}
+.ex-dd-row{margin:10px 0 14px 0;}.ex-dd-label{display:block;margin-bottom:6px;line-height:1.4;}
+.ex-dd-controls{display:flex;align-items:center;gap:8px;padding-left:16px;}
 .ex-check,.ex-show{font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;color:white;flex-shrink:0;}
 .ex-check{background:var(--b);}.ex-show{background:var(--ink4);}
 .ex-check:hover,.ex-show:hover{opacity:.85;}
@@ -14664,13 +14664,13 @@ function makeExercisesInteractive(){
         var ans=answers[i]?answers[i].replace(/\s*[—\-].*/,'').trim():'';
         var id='exdd_'+(exId++);
         var label=parts[i].replace(/<span[^>]*style="[^"]*display:\s*none[^"]*"[^>]*>[\s\S]*?<\/span>/g,'').trim();
-        newHTML+='<div class="ex-dd-row"><span class="ex-dd-label">'+label+'</span>'
-          +'<select class="ex-select" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'">'
+        newHTML+='<div class="ex-dd-row"><div class="ex-dd-label">'+label+'</div>'
+          +'<div class="ex-dd-controls"><select class="ex-select" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'">'
           +'<option value="">...</option>';
         uniqueOpts.forEach(function(o){newHTML+='<option value="'+o+'">'+o+'</option>';});
         newHTML+='</select>'
           +'<button class="ex-check" onclick="checkDropdown(\''+id+'\')">Check</button>'
-          +'<button class="ex-show" onclick="showDropdownAnswer(\''+id+'\')">Show</button></div>';
+          +'<button class="ex-show" onclick="showDropdownAnswer(\''+id+'\')">Show</button></div></div>';
       }
       if(parts.length>0)newHTML+=parts[parts.length-1];
       bt.innerHTML=newHTML;
