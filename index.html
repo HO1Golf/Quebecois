@@ -14620,6 +14620,8 @@ function oL(u,i){
   });
   // Make exercise blanks interactive
   makeExercisesInteractive();
+  // Immediately unlock any checkpoints that have no exercises above them
+  checkLessonUnlock();
   // Unlock Next button on scroll to bottom
   setupScrollUnlock();
 }
