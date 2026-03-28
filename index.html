@@ -161,6 +161,7 @@ button{cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparen
 .ex-input:focus{border-color:var(--b);}
 .ex-input.correct{border-color:var(--g);background:var(--gl);color:#065F46;}
 .ex-input.wrong{border-color:var(--r);background:#FEF2F2;color:#991B1B;}
+.ex-select{border:2px solid var(--bm);border-radius:8px;padding:4px 8px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;cursor:pointer;display:inline-block;vertical-align:middle;margin:0 2px;}
 .ex-check,.ex-show{font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;color:white;flex-shrink:0;}
 .ex-check{background:var(--b);}.ex-show{background:var(--ink4);}
 .ex-check:hover,.ex-show:hover{opacity:.85;}
@@ -14626,7 +14627,10 @@ function makeExercisesInteractive(){
     var html=bt.innerHTML;
     var answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
     if(!answerSpans.length)return;
-    if(html.indexOf('___')<0)return;
+    if(html.indexOf('___')<0){
+      // No blanks — just show answer hints as-is (comprehension style)
+      return;
+    }
     var answerText='';answerSpans.forEach(function(s){answerText+=s.textContent+' ';});
     var answers=[];
     var parenMatches=answerText.match(/\(([^)]+)\)/g);
@@ -14634,43 +14638,58 @@ function makeExercisesInteractive(){
     else{
       var numMatches=answerText.match(/\d+\.\s*([^0-9]+)/g);
       if(numMatches){numMatches.forEach(function(m){answers.push(m.replace(/^\d+\.\s*/,'').trim());});}
-      else{
-        // Try splitting by "/" for conversation-style answers like "answer1" / "answer2"
-        var slashParts=answerText.replace(/^[^"]*"|"[^"]*$/g,'').split(/"\s*\/\s*"/);
-        if(slashParts.length>1){slashParts.forEach(function(p){answers.push(p.replace(/"/g,'').trim());});}
-        else{
-          // Last resort: split by / if there are blanks
-          var blankCount=(html.match(/_{3,}/g)||[]).length;
-          var raw=answerText.replace(/^Example:\s*/i,'').replace(/"/g,'').trim().split(/\s*\/\s*/);
-          if(raw.length>=blankCount){raw.forEach(function(p){if(p.trim())answers.push(p.trim());});}
-        }
-      }
     }
-    // If no parsed answers, treat blanks as free-form (any text accepted)
-    var freeForm=!answers.length;
-    answerSpans.forEach(function(s){s.style.display='none';});
-    // Strip <b> tags around blanks before splitting
+    // Check if this is a dropdown-style exercise (short single-word answers like tu/vous)
+    var isDropdown=answers.length>0&&answers.every(function(a){
+      var clean=a.replace(/\s*[—\-].*/,'').trim(); // strip explanations like "vous — stranger"
+      return clean.split(/\s+/).length<=2;
+    });
+    // Strip <b> tags around blanks
     var cleanHTML=bt.innerHTML.replace(/<b>_{3,}<\/b>/g,function(m){return m.replace(/<\/?b>/g,'');});
     bt.innerHTML=cleanHTML;
-    // Split content at each blank and rebuild as aligned rows
-    var parts=bt.innerHTML.split(/_{3,}/);
-    var newHTML='';
-    for(var i=0;i<parts.length-1;i++){
-      var ans=freeForm?'__free__':(answers[i]||'');
-      var id='exin_'+(exId++);
-      var prompt=parts[i];
-      newHTML+='<div class="ex-row"><div class="ex-prompt">'+prompt+'</div>'
-        +'<input type="text" class="ex-input'+(freeForm?' ex-free':'')+'" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" onkeydown="if(event.key===\'Enter\')checkExAnswer(\''+id+'\')">'
-        +'<button class="ex-check" onclick="checkExAnswer(\''+id+'\')">Check</button>'
-        +'<button class="ex-show" disabled style="opacity:.4;" onclick="showExAnswer(\''+id+'\')">Show</button>'
-        +'<span class="ex-fb" id="'+id+'_fb"></span></div>';
+    if(isDropdown&&answers.length>0){
+      // Dropdown select mode — get unique options from answers
+      var uniqueOpts=[];
+      answers.forEach(function(a){
+        var clean=a.replace(/\s*[—\-].*/,'').trim();
+        if(uniqueOpts.indexOf(clean)<0)uniqueOpts.push(clean);
+      });
+      answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
+      answerSpans.forEach(function(s){s.style.display='none';});
+      var parts=bt.innerHTML.split(/_{3,}/);
+      var newHTML='';
+      for(var i=0;i<parts.length-1;i++){
+        var ans=answers[i]?answers[i].replace(/\s*[—\-].*/,'').trim():'';
+        var id='exdd_'+(exId++);
+        newHTML+=parts[i]+'<select class="ex-select" id="'+id+'" data-answer="'+ans.replace(/"/g,'&quot;')+'" onchange="checkDropdown(\''+id+'\')">';
+        newHTML+='<option value="">...</option>';
+        uniqueOpts.forEach(function(o){newHTML+='<option value="'+o+'">'+o+'</option>';});
+        newHTML+='</select>';
+      }
+      if(parts.length>0)newHTML+=parts[parts.length-1];
+      bt.innerHTML=newHTML;
+    } else {
+      // Show answers inline as small text (no textbox needed)
+      // Just make the answer hints visible and styled nicely
+      answerSpans=bt.querySelectorAll('span[style*="ink4"], span[style*="11px"]');
+      answerSpans.forEach(function(s){s.style.display='';s.style.fontSize='11px';s.style.color='var(--ink4)';});
     }
-    if(parts.length>0)newHTML+=parts[parts.length-1];
-    bt.innerHTML=newHTML;
   });
 }
 // Normalize: lowercase, strip punctuation, collapse spaces
 function normalizeAnswer(s){return s.toLowerCase().replace(/[!?.,;:'"()\u2014\u2013\u2019\u2018\u201C\u201D]/g,'').replace(/\s+/g,' ').trim();}
+function checkDropdown(id){
+  var sel=document.getElementById(id);
+  var answer=sel.getAttribute('data-answer');
+  if(!sel.value)return;
+  if(normalizeAnswer(sel.value)===normalizeAnswer(answer)){
+    sel.style.border='2px solid var(--g)';sel.style.background='var(--gl)';sel.disabled=true;
+  } else {
+    sel.style.border='2px solid var(--r)';sel.style.background='var(--rl)';
+    setTimeout(function(){sel.style.border='';sel.style.background='';sel.value='';},1200);
+  }
+  checkLessonUnlock();
+}
 function showExAnswer(id){
   var inp=document.getElementById(id);
   var fb=document.getElementById(id+'_fb');
@@ -14718,9 +14737,9 @@ function checkExAnswer(id){
 }
 function allExercisesDone(){
   var allDone=true;
-  // Check text input exercises
-  var inputs=document.querySelectorAll('#lcont .ex-input');
-  inputs.forEach(function(inp){if(!inp.disabled)allDone=false;});
+  // Check dropdown exercises
+  var selects=document.querySelectorAll('#lcont .ex-select');
+  selects.forEach(function(sel){if(!sel.disabled)allDone=false;});
   // Check checkpoint questions (must be answered)
   var checkpoints=document.querySelectorAll('#lcont .checkpoint');
   checkpoints.forEach(function(cp){
