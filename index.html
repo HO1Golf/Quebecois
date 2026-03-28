@@ -14529,7 +14529,7 @@ function buildDash(){
       var cls='lu';if(!has)cls+=' lu-lk';else if(done)cls+=' lu-done';else if(started)cls+=' lu-cur';
       var st=done?'<span class="lu-st" style="background:var(--gl);color:var(--g);">✓</span>':started?'<span class="lu-st" style="background:var(--bl);color:var(--b);">▶</span>':has?'':'<span class="lu-st" style="background:var(--cream);color:var(--ink5);">🔒</span>';
       var oc=has?' onclick="curLvl=\''+lv.id+'\';oL('+ui+',0)"':'';
-      h+='<div class="'+cls+'"'+oc+'><span class="lu-ico">'+u.ico+'</span><span class="lu-name">U'+(uIdx+1)+' '+u.t+'</span>'+st+'</div>';
+      h+='<div class="'+cls+'"'+oc+'><span class="lu-name">U'+(uIdx+1)+' '+u.t+'</span>'+st+'</div>';
     });
     h+='</div></div></div>';
     dash.innerHTML+=h;
