@@ -14670,8 +14670,7 @@ function makeExercisesInteractive(){
         uniqueOpts.forEach(function(o){newHTML+='<option value="'+o+'">'+o+'</option>';});
         newHTML+='</select>'
           +'<button class="ex-check" onclick="checkDropdown(\''+id+'\')">Check</button>'
-          +'<button class="ex-show" onclick="showDropdownAnswer(\''+id+'\')">Show</button>'
-          +'<span class="ex-dd-fb" id="'+id+'_fb"></span></div>';
+          +'<button class="ex-show" onclick="showDropdownAnswer(\''+id+'\')">Show</button></div>';
       }
       if(parts.length>0)newHTML+=parts[parts.length-1];
       bt.innerHTML=newHTML;
@@ -14687,26 +14686,21 @@ function makeExercisesInteractive(){
 function normalizeAnswer(s){return s.toLowerCase().replace(/[!?.,;:'"()\u2014\u2013\u2019\u2018\u201C\u201D]/g,'').replace(/\s+/g,' ').trim();}
 function checkDropdown(id){
   var sel=document.getElementById(id);
-  var fb=document.getElementById(id+'_fb');
   var answer=sel.getAttribute('data-answer');
-  if(!sel.value){fb.className='ex-dd-fb no';fb.textContent='Select an option first';setTimeout(function(){fb.textContent='';},1500);return;}
+  if(!sel.value)return;
   if(normalizeAnswer(sel.value)===normalizeAnswer(answer)){
     sel.style.border='2px solid var(--g)';sel.style.background='var(--gl)';sel.disabled=true;
-    fb.className='ex-dd-fb ok';fb.textContent='Correct!';
     var row=sel.closest('.ex-dd-row');if(row){row.querySelectorAll('button').forEach(function(b){b.disabled=true;b.style.opacity='.4';});}
   } else {
     sel.style.border='2px solid var(--r)';sel.style.background='var(--rl)';
-    fb.className='ex-dd-fb no';fb.textContent='Try again';
-    setTimeout(function(){sel.style.border='';sel.style.background='';fb.textContent='';},1500);
+    setTimeout(function(){sel.style.border='';sel.style.background='';},1500);
   }
   checkLessonUnlock();
 }
 function showDropdownAnswer(id){
   var sel=document.getElementById(id);
-  var fb=document.getElementById(id+'_fb');
   var answer=sel.getAttribute('data-answer');
   sel.value=answer;sel.style.border='2px solid var(--ink4)';sel.disabled=true;
-  fb.className='ex-dd-fb';fb.innerHTML='Answer: <b>'+answer+'</b>';
   var row=sel.closest('.ex-dd-row');if(row){row.querySelectorAll('button').forEach(function(b){b.disabled=true;b.style.opacity='.4';});}
   checkLessonUnlock();
 }
